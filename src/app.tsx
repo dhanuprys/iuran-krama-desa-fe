@@ -26,7 +26,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route index element={<HomePage loadingSkeleton={<LayoutSkeleton />} />} />
         <Route path="login" element={<Pages.Auth.Login />} />
         <Route path="register" element={<Pages.Auth.Register />} />
 
@@ -37,7 +37,6 @@ function App() {
         {/* Krama Routes */}
         <Route element={<AuthenticatedOnly roles={[Constants.ROLES.KRAMA]} />}>
           <Route element={<KramaLayout />}>
-            <Route index element={<Navigate to="dashboard" />} />
             <Route path="dashboard" element={<Pages.Krama.Dashboard />} />
             <Route path="payment">
               <Route index element={<Navigate to="announcement" />} />
