@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 
 import App from '@/app';
 
+import './pwa';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
