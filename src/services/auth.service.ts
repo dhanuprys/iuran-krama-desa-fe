@@ -81,13 +81,13 @@ export class AuthService {
   }
 
   async getProfile() {
-    const response = await apiClient.get<HttpResponse<any>>('/krama/profile');
+    const response = await apiClient.get<HttpResponse<any>>('/profile');
     return response.data;
   }
 
   async updateProfile(data: any): Promise<LoginFeedback> {
     try {
-      const response = await apiClient.put<HttpResponse<any>>('/krama/profile', data);
+      const response = await apiClient.put<HttpResponse<any>>('/profile', data);
       return {
         success: response.data.success,
         errorDetails: response.data.error?.details || null,
@@ -108,7 +108,7 @@ export class AuthService {
 
   async changePassword(data: any): Promise<LoginFeedback> {
     try {
-      const response = await apiClient.put<HttpResponse<any>>('/krama/change-password', data);
+      const response = await apiClient.put<HttpResponse<any>>('/change-password', data);
       return {
         success: response.data.success,
         errorDetails: response.data.error?.details || null,
