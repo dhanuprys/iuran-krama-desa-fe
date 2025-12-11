@@ -8,9 +8,11 @@ import { AlertCircle, ArrowLeft, Calendar, FileText, User, Printer } from 'lucid
 import type { Invoice } from '@/types/entity';
 
 import kramaInvoiceService from '@/services/krama-invoice.service';
+import kramaPaymentService from '@/services/krama-payment.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
 import { useDownloadInvoice } from '@/hooks/use-download-invoice';
+import { useDownloadReceipt } from '@/hooks/use-download-receipt';
 
 import {
   LayoutContent,
@@ -42,6 +44,7 @@ export default function KramaPaymentInvoiceDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   const { download, loading: downloadLoading } = useDownloadInvoice(kramaInvoiceService.downloadInvoice);
+  const { download: downloadReceipt, loading: receiptLoading } = useDownloadReceipt(kramaPaymentService.downloadReceipt);
 
   useEffect(() => {
     if (invoiceId) {
@@ -244,7 +247,22 @@ export default function KramaPaymentInvoiceDetailPage() {
                             {payment.method}
                           </div>
                         </div>
-                        <Badge variant="outline">{payment.status}</Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">{payment.status}</Badge>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => downloadReceipt(payment.id)}
+                            disabled={receiptLoading}
+                          >
+                            {receiptLoading ? (
+                              <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            ) : (
+                              <Printer className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>

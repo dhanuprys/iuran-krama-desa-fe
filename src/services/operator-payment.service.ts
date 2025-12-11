@@ -23,6 +23,13 @@ export class OperatorPaymentService {
         const response = await apiClient.put<HttpResponse<Payment>>(`/operator/payments/${id}`, data);
         return response.data;
     }
+
+    async downloadReceipt(id: number) {
+        const response = await apiClient.get<Blob>(`/operator/payments/${id}/download`, {
+            responseType: 'blob',
+        });
+        return response.data;
+    }
 }
 
 export default new OperatorPaymentService();

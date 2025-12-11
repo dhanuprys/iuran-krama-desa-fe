@@ -6,9 +6,11 @@ import { ArrowLeft, CircleDollarSignIcon, Edit, Loader2, Printer } from 'lucide-
 import type { Invoice } from '@/types/entity';
 
 import operatorInvoiceService from '@/services/operator-invoice.service';
+import operatorPaymentService from '@/services/operator-payment.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
 import { useDownloadInvoice } from '@/hooks/use-download-invoice';
+import { useDownloadReceipt } from '@/hooks/use-download-receipt';
 
 import {
     LayoutContent,
@@ -43,6 +45,7 @@ export default function OperatorInvoiceDetailPage() {
     const [error, setError] = useState<string | null>(null);
 
     const { download, loading: downloadLoading } = useDownloadInvoice(operatorInvoiceService.downloadInvoice);
+    const { download: downloadReceipt, loading: receiptLoading } = useDownloadReceipt(operatorPaymentService.downloadReceipt);
 
     useBreadcrumb([{ title: 'Kelola Tagihan', href: '/operator/invoice' }, { title: 'Detail Tagihan' }]);
 
@@ -255,6 +258,7 @@ export default function OperatorInvoiceDetailPage() {
                                             <TableHead>Metode</TableHead>
                                             <TableHead>Status</TableHead>
                                             <TableHead className="text-right">Jumlah</TableHead>
+                                            <TableHead className="w-[50px]"></TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -272,6 +276,21 @@ export default function OperatorInvoiceDetailPage() {
                                                 </TableCell>
                                                 <TableCell className="text-right font-medium">
                                                     {formatCurrency(payment.amount)}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        title="Cetak Bukti"
+                                                        onClick={() => downloadReceipt(payment.id)}
+                                                        disabled={receiptLoading}
+                                                    >
+                                                        {receiptLoading ? (
+                                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                                        ) : (
+                                                            <Printer className="h-4 w-4" />
+                                                        )}
+                                                    </Button>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
