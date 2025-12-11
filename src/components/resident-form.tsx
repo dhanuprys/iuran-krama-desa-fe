@@ -142,11 +142,15 @@ export function ResidentForm({
       return;
     }
 
-    if (!formData.banjar_id) {
-      setError('Pilih Banjar terlebih dahulu.');
-      setLoading(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
+    const isHead = formData.family_status === 'HEAD_OF_FAMILY';
+
+    if (isHead) {
+      if (!formData.banjar_id) {
+        setError('Pilih Banjar terlebih dahulu.');
+        setLoading(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
     }
 
     try {
@@ -357,213 +361,217 @@ export function ResidentForm({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Informasi Adat & Alamat</CardTitle>
-          <CardDescription>Status kependudukan adat dan lokasi tinggal.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <FieldGroup className="grid gap-4 md:grid-cols-3">
-            <Field>
-              <FieldLabel>Banjar Adat</FieldLabel>
-              <FieldContent>
-                <Select
-                  value={formData.banjar_id}
-                  onValueChange={(val) => handleSelectChange('banjar_id', val)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih Banjar" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {banjars.map((banjar) => (
-                      <SelectItem key={banjar.id} value={banjar.id.toString()}>
-                        {banjar.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FieldContent>
-            </Field>
+      {formData.family_status === 'HEAD_OF_FAMILY' && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Informasi Adat & Alamat</CardTitle>
+              <CardDescription>Status kependudukan adat dan lokasi tinggal.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FieldGroup className="grid gap-4 md:grid-cols-3">
+                <Field>
+                  <FieldLabel>Banjar Adat</FieldLabel>
+                  <FieldContent>
+                    <Select
+                      value={formData.banjar_id}
+                      onValueChange={(val) => handleSelectChange('banjar_id', val)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih Banjar" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {banjars.map((banjar) => (
+                          <SelectItem key={banjar.id} value={banjar.id.toString()}>
+                            {banjar.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FieldContent>
+                </Field>
 
-            <Field>
-              <FieldLabel>Status Krama (Iuran)</FieldLabel>
-              <FieldContent>
-                <Select
-                  value={formData.resident_status_id}
-                  onValueChange={(val) => handleSelectChange('resident_status_id', val)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih Status Krama" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {residentStatuses.map((status) => (
-                      <SelectItem key={status.id} value={status.id.toString()}>
-                        {status.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FieldContent>
-            </Field>
-          </FieldGroup>
+                <Field>
+                  <FieldLabel>Status Krama (Iuran)</FieldLabel>
+                  <FieldContent>
+                    <Select
+                      value={formData.resident_status_id}
+                      onValueChange={(val) => handleSelectChange('resident_status_id', val)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih Status Krama" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {residentStatuses.map((status) => (
+                          <SelectItem key={status.id} value={status.id.toString()}>
+                            {status.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FieldContent>
+                </Field>
+              </FieldGroup>
 
-          <FieldGroup className="grid gap-4 md:grid-cols-2">
-            <Field>
-              <FieldLabel>Alamat Asal (Sesuai KTP)</FieldLabel>
-              <FieldContent>
-                <Input
-                  name="origin_address"
-                  value={formData.origin_address}
-                  onChange={handleChange}
-                  placeholder="Jl..."
-                  required
-                />
-              </FieldContent>
-            </Field>
-            <Field>
-              <FieldLabel>Alamat Domisili (Di Desa)</FieldLabel>
-              <FieldContent>
-                <Input
-                  name="residential_address"
-                  value={formData.residential_address}
-                  onChange={handleChange}
-                  placeholder="Jl..."
-                  required
-                />
-              </FieldContent>
-            </Field>
-          </FieldGroup>
-          <FieldGroup className="grid gap-4 md:grid-cols-3">
-            <Field>
-              <FieldLabel>Nomor RT</FieldLabel>
-              <FieldContent>
-                <Input
-                  name="rt_number"
-                  value={formData.rt_number}
-                  onChange={handleChange}
-                  placeholder="005"
-                />
-              </FieldContent>
-            </Field>
-            <Field>
-              <FieldLabel>Nama Tempat Tinggal</FieldLabel>
-              <FieldContent>
-                <Input
-                  name="residence_name"
-                  value={formData.residence_name}
-                  onChange={handleChange}
-                  placeholder="Griya Asri"
-                />
-              </FieldContent>
-            </Field>
-            <Field>
-              <FieldLabel>Nomor Rumah</FieldLabel>
-              <FieldContent>
-                <Input
-                  name="house_number"
-                  value={formData.house_number}
-                  onChange={handleChange}
-                  placeholder="No. 123"
-                />
-              </FieldContent>
-            </Field>
-          </FieldGroup>
+              <FieldGroup className="grid gap-4 md:grid-cols-2">
+                <Field>
+                  <FieldLabel>Alamat Asal (Sesuai KTP)</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      name="origin_address"
+                      value={formData.origin_address}
+                      onChange={handleChange}
+                      placeholder="Jl..."
+                      required
+                    />
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>Alamat Domisili (Di Desa)</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      name="residential_address"
+                      value={formData.residential_address}
+                      onChange={handleChange}
+                      placeholder="Jl..."
+                      required
+                    />
+                  </FieldContent>
+                </Field>
+              </FieldGroup>
+              <FieldGroup className="grid gap-4 md:grid-cols-3">
+                <Field>
+                  <FieldLabel>Nomor RT</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      name="rt_number"
+                      value={formData.rt_number}
+                      onChange={handleChange}
+                      placeholder="005"
+                    />
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>Nama Tempat Tinggal</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      name="residence_name"
+                      value={formData.residence_name}
+                      onChange={handleChange}
+                      placeholder="Griya Asri"
+                    />
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>Nomor Rumah</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      name="house_number"
+                      value={formData.house_number}
+                      onChange={handleChange}
+                      placeholder="No. 123"
+                    />
+                  </FieldContent>
+                </Field>
+              </FieldGroup>
 
-          <Field>
-            <FieldLabel>Lokasi Rumah (GPS)</FieldLabel>
-            <FieldContent>
-              <div className="overflow-hidden rounded-lg border">
-                <MapPicker value={location} onChange={setLocation} />
-              </div>
-              <div className="text-muted-foreground mt-1 text-xs">
-                Klik pada peta untuk menandai lokasi rumah.{' '}
-                {location
-                  ? `Lat: ${location.lat.toFixed(6)}, Lng: ${location.lng.toFixed(6)}`
-                  : 'Belum memilih lokasi.'}
-              </div>
-            </FieldContent>
-          </Field>
+              <Field>
+                <FieldLabel>Lokasi Rumah (GPS)</FieldLabel>
+                <FieldContent>
+                  <div className="overflow-hidden rounded-lg border">
+                    <MapPicker value={location} onChange={setLocation} />
+                  </div>
+                  <div className="text-muted-foreground mt-1 text-xs">
+                    Klik pada peta untuk menandai lokasi rumah.{' '}
+                    {location
+                      ? `Lat: ${location.lat.toFixed(6)}, Lng: ${location.lng.toFixed(6)}`
+                      : 'Belum memilih lokasi.'}
+                  </div>
+                </FieldContent>
+              </Field>
 
-          <FieldGroup className="grid gap-4 md:grid-cols-2">
-            <Field>
-              <FieldLabel>No. Handphone / WA</FieldLabel>
-              <FieldContent>
-                <Input
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="08..."
-                  type="tel"
-                />
-              </FieldContent>
-            </Field>
-            <Field>
-              <FieldLabel>Email (Opsional)</FieldLabel>
-              <FieldContent>
-                <Input name="email" value={formData.email} onChange={handleChange} type="email" />
-              </FieldContent>
-            </Field>
-          </FieldGroup>
-        </CardContent>
-      </Card>
+              <FieldGroup className="grid gap-4 md:grid-cols-2">
+                <Field>
+                  <FieldLabel>No. Handphone / WA</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="08..."
+                      type="tel"
+                    />
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>Email (Opsional)</FieldLabel>
+                  <FieldContent>
+                    <Input name="email" value={formData.email} onChange={handleChange} type="email" />
+                  </FieldContent>
+                </Field>
+              </FieldGroup>
+            </CardContent>
+          </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Dokumen Pendukung</CardTitle>
-          <CardDescription>Upload foto dokumen anda. Pastikan terlihat jelas.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <Field>
-            <FieldLabel>Foto Diri (Wajah Jelas)</FieldLabel>
-            <FieldContent>
-              <div className="flex items-center gap-4">
-                <Input
-                  name="resident_photo"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-                {files.resident_photo && (
-                  <span className="text-sm text-green-600">
-                    <UploadCloud className="inline h-4 w-4" /> Terpilih
-                  </span>
-                )}
-              </div>
-            </FieldContent>
-          </Field>
-          <Field>
-            <FieldLabel>Foto KTP</FieldLabel>
-            <FieldContent>
-              <div className="flex items-center gap-4">
-                <Input name="photo_ktp" type="file" accept="image/*" onChange={handleFileChange} />
-                {files.photo_ktp && (
-                  <span className="text-sm text-green-600">
-                    <UploadCloud className="inline h-4 w-4" /> Terpilih
-                  </span>
-                )}
-              </div>
-            </FieldContent>
-          </Field>
-          <Field>
-            <FieldLabel>Foto Rumah (Tampak Depan)</FieldLabel>
-            <FieldContent>
-              <div className="flex items-center gap-4">
-                <Input
-                  name="photo_house"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-                {files.photo_house && (
-                  <span className="text-sm text-green-600">
-                    <UploadCloud className="inline h-4 w-4" /> Terpilih
-                  </span>
-                )}
-              </div>
-            </FieldContent>
-          </Field>
-        </CardContent>
-      </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Dokumen Pendukung</CardTitle>
+              <CardDescription>Upload foto dokumen anda. Pastikan terlihat jelas.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Field>
+                <FieldLabel>Foto Diri (Wajah Jelas)</FieldLabel>
+                <FieldContent>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      name="resident_photo"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                    {files.resident_photo && (
+                      <span className="text-sm text-green-600">
+                        <UploadCloud className="inline h-4 w-4" /> Terpilih
+                      </span>
+                    )}
+                  </div>
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel>Foto KTP</FieldLabel>
+                <FieldContent>
+                  <div className="flex items-center gap-4">
+                    <Input name="photo_ktp" type="file" accept="image/*" onChange={handleFileChange} />
+                    {files.photo_ktp && (
+                      <span className="text-sm text-green-600">
+                        <UploadCloud className="inline h-4 w-4" /> Terpilih
+                      </span>
+                    )}
+                  </div>
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel>Foto Rumah (Tampak Depan)</FieldLabel>
+                <FieldContent>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      name="photo_house"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                    {files.photo_house && (
+                      <span className="text-sm text-green-600">
+                        <UploadCloud className="inline h-4 w-4" /> Terpilih
+                      </span>
+                    )}
+                  </div>
+                </FieldContent>
+              </Field>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       <div className="flex justify-end gap-4">
         <Button type="button" variant="outline" onClick={() => navigate(cancelPath)}>
