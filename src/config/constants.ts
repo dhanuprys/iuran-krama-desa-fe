@@ -7,8 +7,8 @@ export const Constants = {
   },
   DEFAULT_THEME: 'light',
   LS_KEYS: {
-    THEME: 'ui-theme',
-    AUTH_TOKEN: 'token',
-    RESIDENT_CONTEXT: 'resident_context',
+    THEME: '7450f6e3ecc3e245414b',
+    AUTH_TOKEN: 'cce789bbff71c422b922',
+    RESIDENT_CONTEXT: '5f2fc1ec282f4addc828',
   },
 };
