@@ -78,6 +78,12 @@ function App() {
               <Route path=":id/edit" element={<Pages.Admin.Resident.Edit />} />
               <Route path=":id" element={<Pages.Admin.Resident.Detail />} />
             </Route>
+            <Route path="resident-status">
+              <Route index element={<Pages.Admin.ResidentStatus.List />} />
+              <Route path="create" element={<Pages.Admin.ResidentStatus.Create />} />
+              <Route path=":id/edit" element={<Pages.Admin.ResidentStatus.Edit />} />
+              <Route path=":id" element={<Pages.Admin.ResidentStatus.Detail />} />
+            </Route>
             <Route path="announcement">
               <Route index element={<Pages.Admin.Announcement.List />} />
               <Route path="create" element={<Pages.Admin.Announcement.Create />} />

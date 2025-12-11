@@ -32,6 +32,10 @@ import AdminUserListPage from './admin/user';
 import AdminUserCreatePage from './admin/user/create';
 import AdminUserDetailPage from './admin/user/detail';
 import AdminUserEditPage from './admin/user/edit';
+import AdminResidentStatusListPage from './admin/resident-status';
+import AdminResidentStatusCreatePage from './admin/resident-status/create';
+import AdminResidentStatusEditPage from './admin/resident-status/edit';
+import AdminResidentStatusDetailPage from './admin/resident-status/detail';
 // auth imports
 import LoginPage from './auth/login';
 import LogoutPage from './auth/logout';
@@ -111,6 +115,12 @@ export const Admin = {
   AuditLog: {
     List: AdminAuditLogListPage,
     Detail: AdminAuditLogDetailPage,
+  },
+  ResidentStatus: {
+    List: AdminResidentStatusListPage,
+    Create: AdminResidentStatusCreatePage,
+    Edit: AdminResidentStatusEditPage,
+    Detail: AdminResidentStatusDetailPage,
   },
 };
 

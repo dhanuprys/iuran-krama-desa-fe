@@ -6,7 +6,8 @@ import { AlertCircle, SaveIcon, UploadCloud } from 'lucide-react';
 import type { Resident } from '@/types/entity';
 
 import residentService from '@/services/krama-resident.service';
-import { type ResidentStatus, residentStatusService } from '@/services/resident-status.service';
+import residentStatusService from '@/services/resident-status.service';
+import { type ResidentStatus } from '@/services/resident-status.service';
 
 import { MapPicker } from '@/components/map-picker';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
