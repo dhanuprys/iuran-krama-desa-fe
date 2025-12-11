@@ -2,7 +2,9 @@ import * as React from 'react';
 
 import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 
-import adminResidentService, { type Resident } from '@/services/admin-resident.service';
+import type { Resident } from '@/services/admin-resident.service';
+import { apiClient } from '@/lib/api';
+import type { HttpResponse, PaginatedResponse } from '@/types/http';
 
 import { useDebounce } from '@/hooks/use-debounce';
 
@@ -24,9 +26,10 @@ interface ResidentComboboxProps {
   onChange: (value: number) => void;
   onSelect?: (resident: Resident) => void;
   error?: string;
+  baseApiUrl?: string; // Optional defaulting to '/admin' for backward compatibility
 }
 
-export function ResidentCombobox({ value, onChange, onSelect, error }: ResidentComboboxProps) {
+export function ResidentCombobox({ value, onChange, onSelect, error, baseApiUrl = '/admin' }: ResidentComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [selectedResident, setSelectedResident] = React.useState<Resident | null>(null);
   const [residents, setResidents] = React.useState<Resident[]>([]);
@@ -59,13 +62,14 @@ export function ResidentCombobox({ value, onChange, onSelect, error }: ResidentC
 
   const fetchResidentDetail = async (id: number) => {
     try {
-      const response = await adminResidentService.getResident(id);
-      if (response.success && response.data) {
-        setSelectedResident(response.data);
+      // Construct endpoint: baseApiUrl + '/residents/' + id
+      const response = await apiClient.get<HttpResponse<Resident>>(`${baseApiUrl}/residents/${id}`);
+      if (response.data.success && response.data.data) {
+        setSelectedResident(response.data.data);
         // Ensure the selected resident is in the list
         setResidents((prev) => {
           if (!prev.find((r) => r.id === id)) {
-            return [response.data!, ...prev];
+            return [response.data.data!, ...prev];
           }
           return prev;
         });
@@ -78,13 +82,15 @@ export function ResidentCombobox({ value, onChange, onSelect, error }: ResidentC
   const fetchResidents = async (query: string) => {
     setLoading(true);
     try {
-      const response = await adminResidentService.getResidents({
-        search: query,
-        page: 1,
-        per_page: 10, // Limit results for performance
+      const response = await apiClient.get<PaginatedResponse<Resident>>(`${baseApiUrl}/residents`, {
+        params: {
+          search: query,
+          page: 1,
+          per_page: 10, // Limit results for performance
+        },
       });
-      if (response.success && response.data) {
-        setResidents(response.data);
+      if (response.data.success && response.data.data) {
+        setResidents(response.data.data);
       }
     } catch (error) {
       console.error('Failed to search residents', error);

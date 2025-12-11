@@ -106,7 +106,7 @@ export default function AdminPaymentEditPage() {
         }
       />
       <LayoutContentBody>
-        <PaymentForm onSubmit={handleSubmit} initialData={payment} isEditing />
+        <PaymentForm onSubmit={handleSubmit} initialData={payment} isEditing baseApiUrl="/admin" />
       </LayoutContentBody>
     </LayoutContent>
   );

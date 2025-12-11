@@ -49,7 +49,44 @@ import KramaPaymentAnnouncementPage from './krama/payment/announcement';
 import KramaPaymentInvoicePage from './krama/payment/invoice';
 import KramaPaymentInvoiceDetailPage from './krama/payment/invoice/detail';
 
+// Operator
+import OperatorDashboard from './operator/dashboard';
+import OperatorInvoiceListPage from './operator/invoice';
+import OperatorInvoiceCreatePage from './operator/invoice/create';
+import OperatorInvoiceEditPage from './operator/invoice/edit';
+import OperatorInvoiceDetailPage from './operator/invoice/detail';
+import OperatorPaymentListPage from './operator/payment';
+import OperatorPaymentCreatePage from './operator/payment/create';
+import OperatorPaymentEditPage from './operator/payment/edit';
+import OperatorPaymentDetailPage from './operator/payment/detail';
+import OperatorResidentListPage from './operator/resident';
+import OperatorResidentCreatePage from './operator/resident/create';
+import OperatorResidentEditPage from './operator/resident/edit';
+import OperatorResidentDetailPage from './operator/resident/detail';
+
 // ... existing code ...
+
+export const Operator = {
+  Dashboard: OperatorDashboard,
+  Invoice: {
+    List: OperatorInvoiceListPage,
+    Create: OperatorInvoiceCreatePage,
+    Edit: OperatorInvoiceEditPage,
+    Detail: OperatorInvoiceDetailPage,
+  },
+  Payment: {
+    List: OperatorPaymentListPage,
+    Create: OperatorPaymentCreatePage,
+    Edit: OperatorPaymentEditPage,
+    Detail: OperatorPaymentDetailPage,
+  },
+  Resident: {
+    List: OperatorResidentListPage,
+    Create: OperatorResidentCreatePage,
+    Edit: OperatorResidentEditPage,
+    Detail: OperatorResidentDetailPage,
+  },
+};
 
 export const Krama = {
   Dashboard: KramaDashboardPage,

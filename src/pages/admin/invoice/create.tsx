@@ -88,7 +88,7 @@ export default function AdminInvoiceCreatePage() {
   };
 
   const totalAmount =
-    (formData.iuran_amount || 0) + formData.peturunan_amount + formData.dedosan_amount;
+    (Number(formData.iuran_amount) || 0) + Number(formData.peturunan_amount) + Number(formData.dedosan_amount);
 
   return (
     <LayoutContent>
@@ -146,6 +146,7 @@ export default function AdminInvoiceCreatePage() {
                 </Label>
                 <ResidentCombobox
                   value={formData.resident_id}
+                  baseApiUrl="/admin"
                   onChange={(val) => {
                     setFormData((prev) => ({ ...prev, resident_id: val }));
                   }}
@@ -155,7 +156,7 @@ export default function AdminInvoiceCreatePage() {
                     );
                     setFormData((prev) => ({
                       ...prev,
-                      iuran_amount: resident.resident_status?.contribution_amount || 0,
+                      iuran_amount: Number(resident.resident_status?.contribution_amount || 0),
                     }));
                   }}
                 />

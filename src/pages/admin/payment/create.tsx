@@ -46,7 +46,7 @@ export default function AdminPaymentCreatePage() {
         }
       />
       <LayoutContentBody>
-        <PaymentForm onSubmit={handleSubmit} invoiceId={invoiceId} />
+        <PaymentForm onSubmit={handleSubmit} invoiceId={invoiceId} baseApiUrl="/admin" />
       </LayoutContentBody>
     </LayoutContent>
   );

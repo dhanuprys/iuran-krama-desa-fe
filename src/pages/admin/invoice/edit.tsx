@@ -56,9 +56,9 @@ export default function AdminInvoiceEditPage() {
           setFormData({
             resident_id: invoice.resident.id,
             invoice_date: invoice.invoice_date,
-            peturunan_amount: invoice.peturunan_amount,
-            dedosan_amount: invoice.dedosan_amount,
-            iuran_amount: invoice.iuran_amount,
+            peturunan_amount: Number(invoice.peturunan_amount),
+            dedosan_amount: Number(invoice.dedosan_amount),
+            iuran_amount: Number(invoice.iuran_amount),
           });
 
           // Check if existing resident has valid krama status
@@ -123,7 +123,7 @@ export default function AdminInvoiceEditPage() {
   };
 
   const totalAmount =
-    (formData.iuran_amount || 0) + formData.peturunan_amount + formData.dedosan_amount;
+    (Number(formData.iuran_amount) || 0) + Number(formData.peturunan_amount) + Number(formData.dedosan_amount);
 
   if (initialLoading) {
     return (
@@ -189,6 +189,7 @@ export default function AdminInvoiceEditPage() {
                 </Label>
                 <ResidentCombobox
                   value={formData.resident_id}
+                  baseApiUrl="/admin"
                   onChange={handleResidentSelect}
                   onSelect={(resident) => {
                     setMissingKramaStatus(

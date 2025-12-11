@@ -9,6 +9,7 @@ import LayoutSkeleton from '@/components/layout-skeleton';
 import { Toaster } from '@/components/ui/sonner';
 
 import AdminLayout from '@/layouts/admin-layout';
+import OperatorLayout from '@/layouts/operator-layout';
 import KramaLayout from '@/layouts/krama-layout';
 import AuthenticatedOnly from '@/layouts/middleware/authenticated-only';
 
@@ -56,6 +57,36 @@ function App() {
               </Route>
             </Route>
             {/* Shared Profile Route for Krama */}
+            <Route path="profile" element={<Pages.ProfilePage />} />
+          </Route>
+        </Route>
+
+        {/* Operator Routes */}
+        <Route element={<AuthenticatedOnly roles={[Constants.ROLES.OPERATOR]} />}>
+          <Route path="operator" element={<OperatorLayout />}>
+            <Route index element={<Navigate to="dashboard" />} />
+            <Route path="dashboard" element={<Pages.Operator.Dashboard />} />
+
+            <Route path="invoice">
+              <Route index element={<Pages.Operator.Invoice.List />} />
+              <Route path="create" element={<Pages.Operator.Invoice.Create />} />
+              <Route path=":id" element={<Pages.Operator.Invoice.Detail />} />
+              <Route path=":id/edit" element={<Pages.Operator.Invoice.Edit />} />
+            </Route>
+
+            <Route path="payment">
+              <Route index element={<Pages.Operator.Payment.List />} />
+              <Route path="create" element={<Pages.Operator.Payment.Create />} />
+              <Route path=":id" element={<Pages.Operator.Payment.Detail />} />
+              <Route path=":id/edit" element={<Pages.Operator.Payment.Edit />} />
+            </Route>
+
+            <Route path="resident">
+              <Route index element={<Pages.Operator.Resident.List />} />
+              <Route path="create" element={<Pages.Operator.Resident.Create />} />
+              <Route path=":id" element={<Pages.Operator.Resident.Detail />} />
+              <Route path=":id/edit" element={<Pages.Operator.Resident.Edit />} />
+            </Route>
             <Route path="profile" element={<Pages.ProfilePage />} />
           </Route>
         </Route>
