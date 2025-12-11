@@ -10,6 +10,7 @@ import {
   MegaphoneIcon,
   PieChart,
   Receipt,
+  TagIcon,
   Users2Icon,
 } from 'lucide-react';
 
@@ -61,6 +62,11 @@ const sidebarConfig: SidebarConfig = {
           title: 'Kelola Banjar',
           url: '/admin/banjar',
           icon: HomeIcon,
+        },
+        {
+          title: 'Status Warga',
+          url: '/admin/resident-status',
+          icon: TagIcon,
         },
       ],
     },
