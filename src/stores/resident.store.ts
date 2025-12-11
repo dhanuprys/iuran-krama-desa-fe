@@ -1,11 +1,13 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { Constants } from '@/config/constants';
 
 import type { ResidentContext } from '@/types/entity';
 
 import residentService from '@/services/krama-resident.service';
+
+import { SecureStorage } from '@/lib/secure-storage';
 
 interface ResidentStore {
   residents: ResidentContext[];
@@ -59,6 +61,7 @@ export const useResidentStore = create<ResidentStore>()(
     }),
     {
       name: Constants.LS_KEYS.RESIDENT_CONTEXT || 'resident-context', // Assuming a key, fall back to string if not in constants yet
+      storage: createJSONStorage(() => SecureStorage),
       partialize: (state) => ({ activeResident: state.activeResident }), // Persist only active resident preference
     },
   ),
