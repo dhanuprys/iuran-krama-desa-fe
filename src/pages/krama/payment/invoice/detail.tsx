@@ -3,13 +3,14 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { AlertCircle, ArrowLeft, Calendar, FileText, User } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Calendar, FileText, User, Printer } from 'lucide-react';
 
 import type { Invoice } from '@/types/entity';
 
 import kramaInvoiceService from '@/services/krama-invoice.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
+import { useDownloadInvoice } from '@/hooks/use-download-invoice';
 
 import {
   LayoutContent,
@@ -39,6 +40,8 @@ export default function KramaPaymentInvoiceDetailPage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { download, loading: downloadLoading } = useDownloadInvoice(kramaInvoiceService.downloadInvoice);
 
   useEffect(() => {
     if (invoiceId) {
@@ -129,6 +132,24 @@ export default function KramaPaymentInvoiceDetailPage() {
             <LayoutContentHead>Detail Tagihan</LayoutContentHead>
             <LayoutContentSubHead>Informasi lengkap tagihan</LayoutContentSubHead>
           </div>
+        }
+        info={
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (invoice) {
+                download(invoice.id);
+              }
+            }}
+            disabled={downloadLoading}
+          >
+            {downloadLoading ? (
+              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <Printer className="mr-2 h-4 w-4" />
+            )}
+            Download PDF
+          </Button>
         }
       />
       <LayoutContentBody>

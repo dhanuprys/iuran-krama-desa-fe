@@ -18,6 +18,7 @@ import AdminFamilyListPage from './admin/family';
 import AdminFamilyDetailPage from './admin/family/detail';
 import AdminInvoiceListPage from './admin/invoice';
 import AdminInvoiceCreatePage from './admin/invoice/create';
+import AdminInvoiceBulkCreatePage from './admin/invoice/bulk-create';
 import AdminInvoiceDetailPage from './admin/invoice/detail';
 import AdminInvoiceEditPage from './admin/invoice/edit';
 import AdminPaymentPage from './admin/payment';
@@ -124,6 +125,7 @@ export const Admin = {
   Invoice: {
     List: AdminInvoiceListPage,
     Create: AdminInvoiceCreatePage,
+    BulkCreate: AdminInvoiceBulkCreatePage,
     Edit: AdminInvoiceEditPage,
     Detail: AdminInvoiceDetailPage,
   },

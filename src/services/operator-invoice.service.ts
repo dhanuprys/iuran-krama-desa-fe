@@ -31,6 +31,13 @@ export class OperatorInvoiceService {
         const response = await apiClient.put<HttpResponse<Invoice>>(`/operator/invoices/${id}`, data);
         return response.data;
     }
+
+    async downloadInvoice(id: number) {
+        const response = await apiClient.get(`/operator/invoices/${id}/download`, {
+            responseType: 'blob',
+        });
+        return response.data;
+    }
 }
 
 export default new OperatorInvoiceService();

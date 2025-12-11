@@ -152,11 +152,13 @@ export default function OperatorInvoiceCreatePage() {
                                         setMissingKramaStatus(
                                             !resident.resident_status || !resident.resident_status.contribution_amount,
                                         );
+                                        // Auto-fill iuran amount based on resident status
                                         setFormData((prev) => ({
                                             ...prev,
                                             iuran_amount: Number(resident.resident_status?.contribution_amount || 0),
                                         }));
                                     }}
+                                    additionalFilters={{ family_status: 'HEAD_OF_FAMILY' }}
                                 />
                             </div>
 

@@ -159,6 +159,7 @@ export default function AdminInvoiceCreatePage() {
                       iuran_amount: Number(resident.resident_status?.contribution_amount || 0),
                     }));
                   }}
+                  additionalFilters={{ family_status: 'HEAD_OF_FAMILY' }}
                 />
               </div>
 

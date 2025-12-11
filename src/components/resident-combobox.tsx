@@ -27,9 +27,17 @@ interface ResidentComboboxProps {
   onSelect?: (resident: Resident) => void;
   error?: string;
   baseApiUrl?: string; // Optional defaulting to '/admin' for backward compatibility
+  additionalFilters?: Record<string, any>;
 }
 
-export function ResidentCombobox({ value, onChange, onSelect, error, baseApiUrl = '/admin' }: ResidentComboboxProps) {
+export function ResidentCombobox({
+  value,
+  onChange,
+  onSelect,
+  error,
+  baseApiUrl = '/admin',
+  additionalFilters,
+}: ResidentComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [selectedResident, setSelectedResident] = React.useState<Resident | null>(null);
   const [residents, setResidents] = React.useState<Resident[]>([]);
@@ -87,6 +95,7 @@ export function ResidentCombobox({ value, onChange, onSelect, error, baseApiUrl 
           search: query,
           page: 1,
           per_page: 10, // Limit results for performance
+          ...additionalFilters,
         },
       });
       if (response.data.success && response.data.data) {

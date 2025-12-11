@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { AlertCircle, FileText } from 'lucide-react';
+import { AlertCircle, FileText, Printer } from 'lucide-react';
 
 import type { Invoice } from '@/types/entity';
 import type { PaginatedResponse } from '@/types/http';
@@ -13,6 +13,7 @@ import { useResidentStore } from '@/stores/resident.store';
 import kramaInvoiceService from '@/services/krama-invoice.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
+import { useDownloadInvoice } from '@/hooks/use-download-invoice';
 
 import { AppPagination } from '@/components/app-pagination';
 import {
@@ -36,7 +37,13 @@ export default function KramaPaymentInvoicePage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loadingInvoices, setLoadingInvoices] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // ...
+  // ...
+
+  // ...
   const [meta, setMeta] = useState<PaginatedResponse<Invoice>['meta'] | null>(null);
+
+  const { download, loading: downloadLoading } = useDownloadInvoice(kramaInvoiceService.downloadInvoice);
 
   useEffect(() => {
     if (activeResident) {
@@ -168,9 +175,26 @@ export default function KramaPaymentInvoicePage() {
                           {formatCurrency(invoice.total_amount)}
                         </div>
                       </div>
-                      <Button asChild variant="outline">
-                        <Link to={`/payment/invoice/${invoice.id}`}>Lihat Detail</Link>
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          title="Download PDF"
+                          onClick={() => download(invoice.id)}
+                          disabled={downloadLoading}
+                        >
+                          {downloadLoading ? (
+                            <div className="flex items-center justify-center">
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            </div>
+                          ) : (
+                            <Printer className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button asChild variant="outline">
+                          <Link to={`/payment/invoice/${invoice.id}`}>Lihat Detail</Link>
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

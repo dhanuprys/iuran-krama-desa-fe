@@ -10,6 +10,7 @@ import {
   PlusIcon,
   Search,
   Trash,
+  Printer,
 } from 'lucide-react';
 
 import type { Invoice } from '@/types/entity';
@@ -17,6 +18,7 @@ import type { Invoice } from '@/types/entity';
 import adminInvoiceService from '@/services/admin-invoice.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
+import { useDownloadInvoice } from '@/hooks/use-download-invoice';
 import { useDebounce } from '@/hooks/use-debounce';
 
 import { AppPagination } from '@/components/app-pagination';
@@ -73,6 +75,11 @@ export default function AdminInvoiceListPage() {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState<number | null>(null);
+
+  // ... (in component)
+
+  // ... (in component)
+  const { download, loading: downloadLoading } = useDownloadInvoice(adminInvoiceService.downloadInvoice);
 
   const debouncedSearch = useDebounce(search, 500);
 
@@ -162,9 +169,14 @@ export default function AdminInvoiceListPage() {
           </div>
         }
         info={
-          <Button onClick={() => navigate('/admin/invoice/create')}>
-            <PlusIcon className="mr-2 h-4 w-4" /> Buat Tagihan
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate('/admin/invoice/bulk-create')}>
+              <PlusIcon className="mr-2 h-4 w-4" /> Buat Tagihan Massal
+            </Button>
+            <Button onClick={() => navigate('/admin/invoice/create')}>
+              <PlusIcon className="mr-2 h-4 w-4" /> Buat Tagihan
+            </Button>
+          </div>
         }
       />
       <LayoutContentBody>
@@ -259,6 +271,17 @@ export default function AdminInvoiceListPage() {
                                 onClick={() => navigate(`/admin/invoice/${invoice.id}`)}
                               >
                                 <EyeIcon className="mr-2 h-4 w-4" /> Detail
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => download(invoice.id)}
+                                disabled={downloadLoading}
+                              >
+                                {downloadLoading ? (
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Printer className="mr-2 h-4 w-4" />
+                                )}
+                                Cetak PDF
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => navigate(`/admin/invoice/${invoice.id}/edit`)}

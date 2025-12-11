@@ -8,6 +8,7 @@ import type { Invoice } from '@/types/entity';
 import operatorInvoiceService from '@/services/operator-invoice.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
+import { useDownloadInvoice } from '@/hooks/use-download-invoice';
 
 import {
     LayoutContent,
@@ -40,6 +41,8 @@ export default function OperatorInvoiceDetailPage() {
     const [invoice, setInvoice] = useState<Invoice | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const { download, loading: downloadLoading } = useDownloadInvoice(operatorInvoiceService.downloadInvoice);
 
     useBreadcrumb([{ title: 'Kelola Tagihan', href: '/operator/invoice' }, { title: 'Detail Tagihan' }]);
 
@@ -107,8 +110,21 @@ export default function OperatorInvoiceDetailPage() {
                 }
                 info={
                     <div className="flex gap-2">
-                        <Button variant="outline" onClick={() => window.print()}>
-                            <Printer className="mr-2 h-4 w-4" /> Cetak
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                if (invoice) {
+                                    download(invoice.id);
+                                }
+                            }}
+                            disabled={downloadLoading}
+                        >
+                            {downloadLoading ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <Printer className="mr-2 h-4 w-4" />
+                            )}
+                            Cetak PDF
                         </Button>
                         {!isPaid && (
                             <Button onClick={() => navigate(`/operator/payment/create?invoice_id=${invoice.id}`)}>

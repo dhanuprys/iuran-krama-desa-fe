@@ -124,6 +124,7 @@ function App() {
             <Route path="invoice">
               <Route index element={<Pages.Admin.Invoice.List />} />
               <Route path="create" element={<Pages.Admin.Invoice.Create />} />
+              <Route path="bulk-create" element={<Pages.Admin.Invoice.BulkCreate />} />
               <Route path=":id/edit" element={<Pages.Admin.Invoice.Edit />} />
               <Route path=":id" element={<Pages.Admin.Invoice.Detail />} />
             </Route>

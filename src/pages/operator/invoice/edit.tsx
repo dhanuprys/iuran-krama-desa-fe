@@ -191,6 +191,7 @@ export default function OperatorInvoiceEditPage() {
                                     value={formData.resident_id}
                                     baseApiUrl="/operator"
                                     onChange={handleResidentSelect}
+                                    additionalFilters={{ family_status: 'HEAD_OF_FAMILY' }}
                                     onSelect={(resident) => {
                                         setMissingKramaStatus(
                                             !resident.resident_status || !resident.resident_status.contribution_amount,

@@ -8,6 +8,7 @@ import type { Invoice } from '@/types/entity';
 import adminInvoiceService from '@/services/admin-invoice.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
+import { useDownloadInvoice } from '@/hooks/use-download-invoice';
 
 import {
   LayoutContent,
@@ -40,6 +41,8 @@ export default function AdminInvoiceDetailPage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { download, loading: downloadLoading } = useDownloadInvoice(adminInvoiceService.downloadInvoice);
 
   useBreadcrumb([{ title: 'Kelola Tagihan', href: '/admin/invoice' }, { title: 'Detail Tagihan' }]);
 
@@ -107,8 +110,21 @@ export default function AdminInvoiceDetailPage() {
         }
         info={
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => window.print()}>
-              <Printer className="mr-2 h-4 w-4" /> Cetak
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (invoice) {
+                  download(invoice.id);
+                }
+              }}
+              disabled={downloadLoading}
+            >
+              {downloadLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Printer className="mr-2 h-4 w-4" />
+              )}
+              Cetak PDF
             </Button>
             {!isPaid && (
               <Button onClick={() => navigate(`/admin/payment/create?invoice_id=${invoice.id}`)}>

@@ -9,6 +9,7 @@ import {
     MoreHorizontal,
     PlusIcon,
     Search,
+    Printer,
 } from 'lucide-react';
 
 import type { Invoice } from '@/types/entity';
@@ -16,6 +17,7 @@ import type { Invoice } from '@/types/entity';
 import operatorInvoiceService from '@/services/operator-invoice.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
+import { useDownloadInvoice } from '@/hooks/use-download-invoice';
 import { useDebounce } from '@/hooks/use-debounce';
 
 import { AppPagination } from '@/components/app-pagination';
@@ -58,6 +60,9 @@ export default function OperatorInvoiceListPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [error, setError] = useState<string | null>(null);
+
+    // ...
+    const { download, loading: downloadLoading } = useDownloadInvoice(operatorInvoiceService.downloadInvoice);
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -215,6 +220,17 @@ export default function OperatorInvoiceListPage() {
                                                                 onClick={() => navigate(`/operator/invoice/${invoice.id}`)}
                                                             >
                                                                 <EyeIcon className="mr-2 h-4 w-4" /> Detail
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                onClick={() => download(invoice.id)}
+                                                                disabled={downloadLoading}
+                                                            >
+                                                                {downloadLoading ? (
+                                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                                ) : (
+                                                                    <Printer className="mr-2 h-4 w-4" />
+                                                                )}
+                                                                Cetak PDF
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
                                                                 onClick={() => navigate(`/operator/invoice/${invoice.id}/edit`)}
