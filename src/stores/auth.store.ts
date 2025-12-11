@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import { Constants } from '@/config/constants';
+import { SecureStorage } from '@/lib/secure-storage';
 
 import type { AuthenticatedUser } from '@/types/entity';
 
@@ -78,7 +79,7 @@ const useAuth = create<AuthStore>((set) => ({
     }
   },
   checkAuth: async () => {
-    const token = localStorage.getItem(Constants.LS_KEYS.AUTH_TOKEN); // Changed this line
+    const token = SecureStorage.getItem(Constants.LS_KEYS.AUTH_TOKEN);
     // Ideally import Constants.
     // But wait, I can just try to fetch profile. If no token, the interceptor or the request will fail/be empty.
     // Actually, better to check if token exists first to avoid unnecessary 401 calls if we know we are not logged in.
