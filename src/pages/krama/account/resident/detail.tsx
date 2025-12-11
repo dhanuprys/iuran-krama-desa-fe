@@ -377,10 +377,21 @@ export default function KramaResidentDetailPage() {
                   <div>
                     <p className="text-muted-foreground mb-1 text-sm">Alamat Domisili</p>
                     <p className="font-medium">{resident.residential_address}</p>
+                    {resident.residence_name && (
+                      <p className="text-muted-foreground text-sm">{resident.residence_name}</p>
+                    )}
                   </div>
                   <div>
-                    <p className="text-muted-foreground mb-1 text-sm">Nomor Rumah</p>
-                    <p className="font-medium">{resident.house_number || '-'}</p>
+                    <div className="flex gap-4">
+                      <div>
+                        <p className="text-muted-foreground mb-1 text-sm">RT</p>
+                        <p className="font-medium">{resident.rt_number || '-'}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground mb-1 text-sm">Nomor Rumah</p>
+                        <p className="font-medium">{resident.house_number || '-'}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div>

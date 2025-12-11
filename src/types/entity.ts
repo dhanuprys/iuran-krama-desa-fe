@@ -43,6 +43,8 @@ export interface Resident {
   marital_status: string;
   origin_address: string;
   residential_address: string;
+  rt_number: string | null;
+  residence_name: string | null;
   house_number: string;
   location: string;
   phone: string;
@@ -106,6 +108,8 @@ export interface CreateResidentRequest {
   marital_status?: 'MARRIED' | 'SINGLE' | 'DEAD_DIVORCE' | 'LIVING_DIVORCE';
   origin_address?: string;
   residential_address?: string;
+  rt_number?: string;
+  residence_name?: string;
   house_number?: string;
   phone?: string;
   email?: string;

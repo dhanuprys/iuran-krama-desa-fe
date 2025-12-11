@@ -61,6 +61,8 @@ export function ResidentForm({
     marital_status: initialData?.marital_status || 'MARRIED',
     origin_address: initialData?.origin_address || '',
     residential_address: initialData?.residential_address || '',
+    rt_number: initialData?.rt_number || '',
+    residence_name: initialData?.residence_name || '',
     house_number: initialData?.house_number || '',
     phone: initialData?.phone || '',
     email: initialData?.email || '',
@@ -431,17 +433,41 @@ export function ResidentForm({
               </FieldContent>
             </Field>
           </FieldGroup>
-          <Field>
-            <FieldLabel>Nomor Rumah</FieldLabel>
-            <FieldContent>
-              <Input
-                name="house_number"
-                value={formData.house_number}
-                onChange={handleChange}
-                placeholder="No. 123"
-              />
-            </FieldContent>
-          </Field>
+          <FieldGroup className="grid gap-4 md:grid-cols-3">
+            <Field>
+              <FieldLabel>Nomor RT</FieldLabel>
+              <FieldContent>
+                <Input
+                  name="rt_number"
+                  value={formData.rt_number}
+                  onChange={handleChange}
+                  placeholder="005"
+                />
+              </FieldContent>
+            </Field>
+            <Field>
+              <FieldLabel>Nama Tempat Tinggal</FieldLabel>
+              <FieldContent>
+                <Input
+                  name="residence_name"
+                  value={formData.residence_name}
+                  onChange={handleChange}
+                  placeholder="Griya Asri"
+                />
+              </FieldContent>
+            </Field>
+            <Field>
+              <FieldLabel>Nomor Rumah</FieldLabel>
+              <FieldContent>
+                <Input
+                  name="house_number"
+                  value={formData.house_number}
+                  onChange={handleChange}
+                  placeholder="No. 123"
+                />
+              </FieldContent>
+            </Field>
+          </FieldGroup>
 
           <Field>
             <FieldLabel>Lokasi Rumah (GPS)</FieldLabel>

@@ -305,9 +305,13 @@ export default function AdminResidentDetailPage() {
                   <div>
                     <p className="text-muted-foreground text-sm">Alamat Domisili</p>
                     <p>{resident.residential_address}</p>
-                    {resident.house_number && (
-                      <p className="text-muted-foreground text-sm">
-                        No. Rumah: {resident.house_number}
+                    <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                      {resident.rt_number && <p>RT: {resident.rt_number}</p>}
+                      {resident.house_number && <p>No. Rumah: {resident.house_number}</p>}
+                    </div>
+                    {resident.residence_name && (
+                      <p className="text-muted-foreground mt-1 text-sm">
+                        Tempat: {resident.residence_name}
                       </p>
                     )}
                   </div>
@@ -400,7 +404,7 @@ export default function AdminResidentDetailPage() {
               <CardContent>
                 {location ? (
                   <div className="h-[400px] overflow-hidden rounded-lg border">
-                    <MapPicker value={location} onChange={() => {}} />
+                    <MapPicker value={location} onChange={() => { }} />
                   </div>
                 ) : (
                   <div className="bg-muted text-muted-foreground flex h-[200px] flex-col items-center justify-center rounded-lg border">
@@ -465,8 +469,8 @@ export default function AdminResidentDetailPage() {
                             <Badge
                               variant={
                                 invoice.payments &&
-                                invoice.payments.length > 0 &&
-                                invoice.payments[0].status === 'paid'
+                                  invoice.payments.length > 0 &&
+                                  invoice.payments[0].status === 'paid'
                                   ? 'default'
                                   : 'secondary'
                               }
