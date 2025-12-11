@@ -5,6 +5,7 @@ import { Constants } from '@/config/constants';
 import type { HttpResponse } from '@/types/http';
 
 import { apiClient } from '@/lib/api';
+import { SecureStorage } from '@/lib/secure-storage';
 
 type LoginResponse = HttpResponse<{ token: string }>;
 
@@ -28,7 +29,7 @@ export class AuthService {
         };
       }
 
-      localStorage.setItem(Constants.LS_KEYS.AUTH_TOKEN, response.data.data!.token);
+      SecureStorage.setItem(Constants.LS_KEYS.AUTH_TOKEN, response.data.data!.token);
 
       return {
         success: true,
@@ -60,7 +61,7 @@ export class AuthService {
         };
       }
 
-      localStorage.setItem(Constants.LS_KEYS.AUTH_TOKEN, response.data.data!.token);
+      SecureStorage.setItem(Constants.LS_KEYS.AUTH_TOKEN, response.data.data!.token);
 
       return {
         success: true,
@@ -133,7 +134,7 @@ export class AuthService {
     } catch (error) {
       console.error('Logout failed', error);
     } finally {
-      localStorage.removeItem(Constants.LS_KEYS.AUTH_TOKEN);
+      SecureStorage.removeItem(Constants.LS_KEYS.AUTH_TOKEN);
     }
   }
 }

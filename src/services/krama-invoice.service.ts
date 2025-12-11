@@ -18,6 +18,13 @@ export class KramaInvoiceService {
     const response = await apiClient.get<HttpResponse<Invoice>>(`/krama/invoices/${id}`);
     return response;
   }
+
+  async downloadInvoice(id: number) {
+    const response = await apiClient.get(`/krama/invoices/${id}/download`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  }
 }
 
 export default new KramaInvoiceService();

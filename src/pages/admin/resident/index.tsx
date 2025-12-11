@@ -90,7 +90,7 @@ export default function AdminResidentListPage() {
   const fetchResidents = async () => {
     setLoading(true);
     try {
-      const response = await adminResidentService.getResidents(searchParams);
+      const response = await adminResidentService.getAll(searchParams);
       if (response.success) {
         setResidents(response.data);
         setPagination(response.meta);
@@ -110,7 +110,7 @@ export default function AdminResidentListPage() {
   const confirmDelete = async () => {
     if (!residentToDelete) return;
     try {
-      await adminResidentService.deleteResident(residentToDelete);
+      await adminResidentService.delete(residentToDelete);
       fetchResidents();
     } catch (error) {
       console.error('Failed to delete resident', error);

@@ -21,6 +21,7 @@ import { ResidentCombobox } from '@/components/resident-combobox';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -55,9 +56,9 @@ export default function AdminInvoiceEditPage() {
           setFormData({
             resident_id: invoice.resident.id,
             invoice_date: invoice.invoice_date,
-            peturunan_amount: invoice.peturunan_amount,
-            dedosan_amount: invoice.dedosan_amount,
-            iuran_amount: invoice.iuran_amount,
+            peturunan_amount: Number(invoice.peturunan_amount),
+            dedosan_amount: Number(invoice.dedosan_amount),
+            iuran_amount: Number(invoice.iuran_amount),
           });
 
           // Check if existing resident has valid krama status
@@ -122,7 +123,9 @@ export default function AdminInvoiceEditPage() {
   };
 
   const totalAmount =
-    (formData.iuran_amount || 0) + formData.peturunan_amount + formData.dedosan_amount;
+    (Number(formData.iuran_amount) || 0) +
+    Number(formData.peturunan_amount) +
+    Number(formData.dedosan_amount);
 
   if (initialLoading) {
     return (
@@ -188,7 +191,9 @@ export default function AdminInvoiceEditPage() {
                 </Label>
                 <ResidentCombobox
                   value={formData.resident_id}
+                  baseApiUrl="/admin"
                   onChange={handleResidentSelect}
+                  additionalFilters={{ family_status: 'HEAD_OF_FAMILY' }}
                   onSelect={(resident) => {
                     setMissingKramaStatus(
                       !resident.resident_status || !resident.resident_status.contribution_amount,
@@ -218,11 +223,10 @@ export default function AdminInvoiceEditPage() {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="iuran_amount">Iuran Wajib (Otomatis)</Label>
-                  <Input
+                  <CurrencyInput
                     id="iuran_amount"
                     name="iuran_amount"
-                    type="number"
-                    value={formData.iuran_amount}
+                    value={(formData.iuran_amount || 0).toString()}
                     disabled
                     className="bg-muted"
                   />
@@ -230,24 +234,32 @@ export default function AdminInvoiceEditPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="peturunan_amount">Peturunan</Label>
-                  <Input
+                  <CurrencyInput
                     id="peturunan_amount"
                     name="peturunan_amount"
-                    type="number"
-                    min="0"
+                    placeholder="0"
                     value={formData.peturunan_amount}
-                    onChange={handleChange}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        peturunan_amount: value ? Number(value) : 0,
+                      }))
+                    }
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="dedosan_amount">Dedosan</Label>
-                  <Input
+                  <CurrencyInput
                     id="dedosan_amount"
                     name="dedosan_amount"
-                    type="number"
-                    min="0"
+                    placeholder="0"
                     value={formData.dedosan_amount}
-                    onChange={handleChange}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        dedosan_amount: value ? Number(value) : 0,
+                      }))
+                    }
                   />
                 </div>
               </div>

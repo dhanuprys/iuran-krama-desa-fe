@@ -30,6 +30,13 @@ export class AdminPaymentService {
     const response = await apiClient.delete<HttpResponse<null>>(`/admin/payments/${id}`);
     return response.data;
   }
+
+  async downloadReceipt(id: number) {
+    const response = await apiClient.get<Blob>(`/admin/payments/${id}/download`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  }
 }
 
 export default new AdminPaymentService();

@@ -19,8 +19,10 @@ export default function LoginPage() {
     if (user) {
       if (user.role === Constants.ROLES.ADMIN) {
         navigate('/admin/dashboard');
+      } else if (user.role === Constants.ROLES.OPERATOR) {
+        navigate('/operator/dashboard');
       } else {
-        navigate('/payment/announcement');
+        navigate('/krama/dashboard');
       }
     }
   }, [user, navigate]);

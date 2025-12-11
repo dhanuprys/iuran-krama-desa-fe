@@ -72,7 +72,7 @@ export default function AdminResidentDetailPage() {
 
   const fetchResident = async (residentId: number) => {
     try {
-      const response = await adminResidentService.getResident(residentId);
+      const response = await adminResidentService.getOne(residentId);
       if (response.success && response.data) {
         setResident(response.data);
         if (response.data.location) {
@@ -305,9 +305,13 @@ export default function AdminResidentDetailPage() {
                   <div>
                     <p className="text-muted-foreground text-sm">Alamat Domisili</p>
                     <p>{resident.residential_address}</p>
-                    {resident.house_number && (
-                      <p className="text-muted-foreground text-sm">
-                        No. Rumah: {resident.house_number}
+                    <div className="text-muted-foreground mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                      {resident.rt_number && <p>RT: {resident.rt_number}</p>}
+                      {resident.house_number && <p>No. Rumah: {resident.house_number}</p>}
+                    </div>
+                    {resident.residence_name && (
+                      <p className="text-muted-foreground mt-1 text-sm">
+                        Tempat: {resident.residence_name}
                       </p>
                     )}
                   </div>

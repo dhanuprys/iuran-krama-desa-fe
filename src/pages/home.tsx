@@ -1,5 +1,6 @@
-import useAuth from '@/stores/auth.store';
 import { Navigate } from 'react-router-dom';
+
+import useAuth from '@/stores/auth.store';
 
 export default function HomePage({ loadingSkeleton }: { loadingSkeleton: React.ReactNode }) {
   const auth = useAuth();
@@ -18,7 +19,9 @@ export default function HomePage({ loadingSkeleton }: { loadingSkeleton: React.R
     return <Navigate to="/admin" />;
   }
 
-  if (auth.user.role === 'krama') {
-    return <Navigate to="/dashboard" />;
+  if (auth.user.role === 'operator') {
+    return <Navigate to="/operator" />;
   }
+
+  return <Navigate to="/dashboard" />;
 }

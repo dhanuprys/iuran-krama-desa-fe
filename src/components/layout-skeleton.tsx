@@ -1,10 +1,16 @@
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-
-import { SidebarSkeleton } from './sidebar-skeleton';
-import { LayoutContent, LayoutContentBody, LayoutContentHead, LayoutContentHeader, LayoutContentSubHead } from './layout-content';
-import { PageHead } from './page-head';
 import { Skeleton } from '@/components/ui/skeleton';
+
+import {
+  LayoutContent,
+  LayoutContentBody,
+  LayoutContentHead,
+  LayoutContentHeader,
+  LayoutContentSubHead,
+} from './layout-content';
+import { PageHead } from './page-head';
+import { SidebarSkeleton } from './sidebar-skeleton';
 
 export const iframeHeight = '800px';
 
@@ -22,7 +28,7 @@ export default function LayoutSkeleton() {
                 header={
                   <div>
                     <LayoutContentHead>
-                      <Skeleton className="h-8 max-w-full w-64" />
+                      <Skeleton className="h-8 w-64 max-w-full" />
                     </LayoutContentHead>
                     <LayoutContentSubHead>
                       <Skeleton className="h-4 w-full md:w-96" />

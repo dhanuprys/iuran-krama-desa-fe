@@ -21,6 +21,7 @@ import { ResidentCombobox } from '@/components/resident-combobox';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -87,7 +88,9 @@ export default function AdminInvoiceCreatePage() {
   };
 
   const totalAmount =
-    (formData.iuran_amount || 0) + formData.peturunan_amount + formData.dedosan_amount;
+    (Number(formData.iuran_amount) || 0) +
+    Number(formData.peturunan_amount) +
+    Number(formData.dedosan_amount);
 
   return (
     <LayoutContent>
@@ -145,6 +148,7 @@ export default function AdminInvoiceCreatePage() {
                 </Label>
                 <ResidentCombobox
                   value={formData.resident_id}
+                  baseApiUrl="/admin"
                   onChange={(val) => {
                     setFormData((prev) => ({ ...prev, resident_id: val }));
                   }}
@@ -154,9 +158,10 @@ export default function AdminInvoiceCreatePage() {
                     );
                     setFormData((prev) => ({
                       ...prev,
-                      iuran_amount: resident.resident_status?.contribution_amount || 0,
+                      iuran_amount: Number(resident.resident_status?.contribution_amount || 0),
                     }));
                   }}
+                  additionalFilters={{ family_status: 'HEAD_OF_FAMILY' }}
                 />
               </div>
 
@@ -177,11 +182,10 @@ export default function AdminInvoiceCreatePage() {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="iuran_amount">Iuran Wajib (Otomatis)</Label>
-                  <Input
+                  <CurrencyInput
                     id="iuran_amount"
                     name="iuran_amount"
-                    type="number"
-                    value={formData.iuran_amount}
+                    value={(formData.iuran_amount || 0).toString()}
                     disabled
                     className="bg-muted"
                   />
@@ -189,24 +193,32 @@ export default function AdminInvoiceCreatePage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="peturunan_amount">Peturunan</Label>
-                  <Input
+                  <CurrencyInput
                     id="peturunan_amount"
                     name="peturunan_amount"
-                    type="number"
-                    min="0"
+                    placeholder="0"
                     value={formData.peturunan_amount}
-                    onChange={handleChange}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        peturunan_amount: value ? Number(value) : 0,
+                      }))
+                    }
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="dedosan_amount">Dedosan</Label>
-                  <Input
+                  <CurrencyInput
                     id="dedosan_amount"
                     name="dedosan_amount"
-                    type="number"
-                    min="0"
+                    placeholder="0"
                     value={formData.dedosan_amount}
-                    onChange={handleChange}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        dedosan_amount: value ? Number(value) : 0,
+                      }))
+                    }
                   />
                 </div>
               </div>

@@ -3,6 +3,7 @@ export const Constants = {
   ROLES: {
     ADMIN: 'admin',
     KRAMA: 'krama',
+    OPERATOR: 'operator',
   },
   DEFAULT_THEME: 'light',
   LS_KEYS: {

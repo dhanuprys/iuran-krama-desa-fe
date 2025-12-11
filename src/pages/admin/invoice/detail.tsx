@@ -6,8 +6,11 @@ import { ArrowLeft, CircleDollarSignIcon, Edit, Loader2, Printer } from 'lucide-
 import type { Invoice } from '@/types/entity';
 
 import adminInvoiceService from '@/services/admin-invoice.service';
+import adminPaymentService from '@/services/admin-payment.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
+import { useDownloadInvoice } from '@/hooks/use-download-invoice';
+import { useDownloadReceipt } from '@/hooks/use-download-receipt';
 
 import {
   LayoutContent,
@@ -40,6 +43,13 @@ export default function AdminInvoiceDetailPage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { download, loading: downloadLoading } = useDownloadInvoice(
+    adminInvoiceService.downloadInvoice,
+  );
+  const { download: downloadReceipt, loading: receiptLoading } = useDownloadReceipt(
+    adminPaymentService.downloadReceipt,
+  );
 
   useBreadcrumb([{ title: 'Kelola Tagihan', href: '/admin/invoice' }, { title: 'Detail Tagihan' }]);
 
@@ -107,8 +117,21 @@ export default function AdminInvoiceDetailPage() {
         }
         info={
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => window.print()}>
-              <Printer className="mr-2 h-4 w-4" /> Cetak
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (invoice) {
+                  download(invoice.id);
+                }
+              }}
+              disabled={downloadLoading}
+            >
+              {downloadLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Printer className="mr-2 h-4 w-4" />
+              )}
+              Cetak PDF
             </Button>
             {!isPaid && (
               <Button onClick={() => navigate(`/admin/payment/create?invoice_id=${invoice.id}`)}>
@@ -239,6 +262,7 @@ export default function AdminInvoiceDetailPage() {
                       <TableHead>Metode</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Jumlah</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -256,6 +280,21 @@ export default function AdminInvoiceDetailPage() {
                         </TableCell>
                         <TableCell className="text-right font-medium">
                           {formatCurrency(payment.amount)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="Cetak Bukti"
+                            onClick={() => downloadReceipt(payment.id)}
+                            disabled={receiptLoading}
+                          >
+                            {receiptLoading ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Printer className="h-4 w-4" />
+                            )}
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}

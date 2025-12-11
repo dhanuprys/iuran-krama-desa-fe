@@ -7,6 +7,7 @@ import type { AuthenticatedUser } from '@/types/entity';
 import AuthService from '@/services/auth.service';
 
 import { apiClient } from '@/lib/api';
+import { SecureStorage } from '@/lib/secure-storage';
 
 interface AuthStore {
   user: AuthenticatedUser | null;
@@ -78,7 +79,7 @@ const useAuth = create<AuthStore>((set) => ({
     }
   },
   checkAuth: async () => {
-    const token = localStorage.getItem(Constants.LS_KEYS.AUTH_TOKEN); // Changed this line
+    const token = SecureStorage.getItem(Constants.LS_KEYS.AUTH_TOKEN);
     // Ideally import Constants.
     // But wait, I can just try to fetch profile. If no token, the interceptor or the request will fail/be empty.
     // Actually, better to check if token exists first to avoid unnecessary 401 calls if we know we are not logged in.

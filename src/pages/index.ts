@@ -17,6 +17,7 @@ import AdminDashboardPage from './admin/dashboard';
 import AdminFamilyListPage from './admin/family';
 import AdminFamilyDetailPage from './admin/family/detail';
 import AdminInvoiceListPage from './admin/invoice';
+import AdminInvoiceBulkCreatePage from './admin/invoice/bulk-create';
 import AdminInvoiceCreatePage from './admin/invoice/create';
 import AdminInvoiceDetailPage from './admin/invoice/detail';
 import AdminInvoiceEditPage from './admin/invoice/edit';
@@ -25,6 +26,10 @@ import AdminPaymentCreatePage from './admin/payment/create';
 import AdminPaymentDetailPage from './admin/payment/detail';
 import AdminPaymentEditPage from './admin/payment/edit';
 import AdminResidentListPage from './admin/resident';
+import AdminResidentStatusListPage from './admin/resident-status';
+import AdminResidentStatusCreatePage from './admin/resident-status/create';
+import AdminResidentStatusDetailPage from './admin/resident-status/detail';
+import AdminResidentStatusEditPage from './admin/resident-status/edit';
 import AdminResidentCreatePage from './admin/resident/create';
 import AdminResidentDetailPage from './admin/resident/detail';
 import AdminResidentEditPage from './admin/resident/edit';
@@ -32,10 +37,6 @@ import AdminUserListPage from './admin/user';
 import AdminUserCreatePage from './admin/user/create';
 import AdminUserDetailPage from './admin/user/detail';
 import AdminUserEditPage from './admin/user/edit';
-import AdminResidentStatusListPage from './admin/resident-status';
-import AdminResidentStatusCreatePage from './admin/resident-status/create';
-import AdminResidentStatusEditPage from './admin/resident-status/edit';
-import AdminResidentStatusDetailPage from './admin/resident-status/detail';
 // auth imports
 import LoginPage from './auth/login';
 import LogoutPage from './auth/logout';
@@ -48,8 +49,44 @@ import KramaDashboardPage from './krama/dashboard';
 import KramaPaymentAnnouncementPage from './krama/payment/announcement';
 import KramaPaymentInvoicePage from './krama/payment/invoice';
 import KramaPaymentInvoiceDetailPage from './krama/payment/invoice/detail';
+// Operator
+import OperatorDashboard from './operator/dashboard';
+import OperatorInvoiceListPage from './operator/invoice';
+import OperatorInvoiceCreatePage from './operator/invoice/create';
+import OperatorInvoiceDetailPage from './operator/invoice/detail';
+import OperatorInvoiceEditPage from './operator/invoice/edit';
+import OperatorPaymentListPage from './operator/payment';
+import OperatorPaymentCreatePage from './operator/payment/create';
+import OperatorPaymentDetailPage from './operator/payment/detail';
+import OperatorPaymentEditPage from './operator/payment/edit';
+import OperatorResidentListPage from './operator/resident';
+import OperatorResidentCreatePage from './operator/resident/create';
+import OperatorResidentDetailPage from './operator/resident/detail';
+import OperatorResidentEditPage from './operator/resident/edit';
 
 // ... existing code ...
+
+export const Operator = {
+  Dashboard: OperatorDashboard,
+  Invoice: {
+    List: OperatorInvoiceListPage,
+    Create: OperatorInvoiceCreatePage,
+    Edit: OperatorInvoiceEditPage,
+    Detail: OperatorInvoiceDetailPage,
+  },
+  Payment: {
+    List: OperatorPaymentListPage,
+    Create: OperatorPaymentCreatePage,
+    Edit: OperatorPaymentEditPage,
+    Detail: OperatorPaymentDetailPage,
+  },
+  Resident: {
+    List: OperatorResidentListPage,
+    Create: OperatorResidentCreatePage,
+    Edit: OperatorResidentEditPage,
+    Detail: OperatorResidentDetailPage,
+  },
+};
 
 export const Krama = {
   Dashboard: KramaDashboardPage,
@@ -87,6 +124,7 @@ export const Admin = {
   Invoice: {
     List: AdminInvoiceListPage,
     Create: AdminInvoiceCreatePage,
+    BulkCreate: AdminInvoiceBulkCreatePage,
     Edit: AdminInvoiceEditPage,
     Detail: AdminInvoiceDetailPage,
   },

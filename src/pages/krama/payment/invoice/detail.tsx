@@ -3,13 +3,16 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { AlertCircle, ArrowLeft, Calendar, FileText, User } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Calendar, FileText, Printer, User } from 'lucide-react';
 
 import type { Invoice } from '@/types/entity';
 
 import kramaInvoiceService from '@/services/krama-invoice.service';
+import kramaPaymentService from '@/services/krama-payment.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
+import { useDownloadInvoice } from '@/hooks/use-download-invoice';
+import { useDownloadReceipt } from '@/hooks/use-download-receipt';
 
 import {
   LayoutContent,
@@ -39,6 +42,13 @@ export default function KramaPaymentInvoiceDetailPage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { download, loading: downloadLoading } = useDownloadInvoice(
+    kramaInvoiceService.downloadInvoice,
+  );
+  const { download: downloadReceipt, loading: receiptLoading } = useDownloadReceipt(
+    kramaPaymentService.downloadReceipt,
+  );
 
   useEffect(() => {
     if (invoiceId) {
@@ -129,6 +139,24 @@ export default function KramaPaymentInvoiceDetailPage() {
             <LayoutContentHead>Detail Tagihan</LayoutContentHead>
             <LayoutContentSubHead>Informasi lengkap tagihan</LayoutContentSubHead>
           </div>
+        }
+        info={
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (invoice) {
+                download(invoice.id);
+              }
+            }}
+            disabled={downloadLoading}
+          >
+            {downloadLoading ? (
+              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <Printer className="mr-2 h-4 w-4" />
+            )}
+            Download PDF
+          </Button>
         }
       />
       <LayoutContentBody>
@@ -223,7 +251,22 @@ export default function KramaPaymentInvoiceDetailPage() {
                             {payment.method}
                           </div>
                         </div>
-                        <Badge variant="outline">{payment.status}</Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">{payment.status}</Badge>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => downloadReceipt(payment.id)}
+                            disabled={receiptLoading}
+                          >
+                            {receiptLoading ? (
+                              <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            ) : (
+                              <Printer className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
