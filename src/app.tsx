@@ -15,14 +15,18 @@ import OperatorLayout from '@/layouts/operator-layout';
 
 import HomePage from '@/pages/home';
 
+import { useAppStore } from '@/stores/app.store';
+
 import * as Pages from '@/pages';
 
 function App() {
   const checkAuth = useAuth((state) => state.checkAuth);
+  const fetchBackendVersion = useAppStore((state) => state.fetchBackendVersion);
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+    fetchBackendVersion();
+  }, [checkAuth, fetchBackendVersion]);
 
   return (
     <>

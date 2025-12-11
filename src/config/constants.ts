@@ -11,4 +11,6 @@ export const Constants = {
     AUTH_TOKEN: 'cce789bbff71c422b922',
     RESIDENT_CONTEXT: '5f2fc1ec282f4addc828',
   },
+  //           major.minor.patch
+  APP_VERSION: '0.1.0-beta',
 };
