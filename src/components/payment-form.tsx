@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldContent, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import {
   Select,
   SelectContent,
@@ -263,20 +264,14 @@ export function PaymentForm({
                   Jumlah Pembayaran (Rp) <span className="text-red-500">*</span>
                 </FieldLabel>
                 <FieldContent>
-                  <div className="relative">
-                    <span className="text-muted-foreground absolute top-2.5 left-3 font-semibold">
-                      Rp
-                    </span>
-                    <Input
-                      name="amount"
-                      type="number"
-                      value={formData.amount}
-                      onChange={handleChange}
-                      placeholder="0"
-                      required
-                      className="pl-10 text-lg font-semibold"
-                    />
-                  </div>
+                  <CurrencyInput
+                    name="amount"
+                    value={formData.amount}
+                    onValueChange={(value) => setFormData((prev) => ({ ...prev, amount: value || '' }))}
+                    placeholder="0"
+                    required
+                    className="text-lg font-semibold"
+                  />
                   <p className="text-muted-foreground mt-1 text-xs">
                     Sarankan: {invoice ? formatCurrency(remaining) : '-'}
                   </p>

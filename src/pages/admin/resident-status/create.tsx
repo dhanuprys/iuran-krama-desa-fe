@@ -19,6 +19,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
 
 export default function AdminResidentStatusCreatePage() {
@@ -101,15 +102,15 @@ export default function AdminResidentStatusCreatePage() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="contribution_amount">Jumlah Iuran (Rp)</Label>
-                                <Input
+                                <CurrencyInput
                                     id="contribution_amount"
                                     name="contribution_amount"
-                                    type="number"
                                     placeholder="0"
                                     value={formData.contribution_amount}
-                                    onChange={handleChange}
+                                    onValueChange={(value) =>
+                                        setFormData((prev) => ({ ...prev, contribution_amount: value || '' }))
+                                    }
                                     required
-                                    min="0"
                                 />
                             </div>
 
