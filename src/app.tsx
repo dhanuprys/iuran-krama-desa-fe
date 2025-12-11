@@ -9,9 +9,9 @@ import LayoutSkeleton from '@/components/layout-skeleton';
 import { Toaster } from '@/components/ui/sonner';
 
 import AdminLayout from '@/layouts/admin-layout';
-import OperatorLayout from '@/layouts/operator-layout';
 import KramaLayout from '@/layouts/krama-layout';
 import AuthenticatedOnly from '@/layouts/middleware/authenticated-only';
+import OperatorLayout from '@/layouts/operator-layout';
 
 import HomePage from '@/pages/home';
 

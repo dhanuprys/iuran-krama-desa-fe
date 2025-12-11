@@ -8,9 +8,9 @@ import {
   Loader2,
   MoreHorizontal,
   PlusIcon,
+  Printer,
   Search,
   Trash,
-  Printer,
 } from 'lucide-react';
 
 import type { Invoice } from '@/types/entity';
@@ -18,8 +18,8 @@ import type { Invoice } from '@/types/entity';
 import adminInvoiceService from '@/services/admin-invoice.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
-import { useDownloadInvoice } from '@/hooks/use-download-invoice';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useDownloadInvoice } from '@/hooks/use-download-invoice';
 
 import { AppPagination } from '@/components/app-pagination';
 import {
@@ -79,7 +79,9 @@ export default function AdminInvoiceListPage() {
   // ... (in component)
 
   // ... (in component)
-  const { download, loading: downloadLoading } = useDownloadInvoice(adminInvoiceService.downloadInvoice);
+  const { download, loading: downloadLoading } = useDownloadInvoice(
+    adminInvoiceService.downloadInvoice,
+  );
 
   const debouncedSearch = useDebounce(search, 500);
 

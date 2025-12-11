@@ -37,7 +37,7 @@ export default function AdminResidentEditPage() {
 
   const fetchResident = async (residentId: number) => {
     try {
-      const response = await adminResidentService.getResident(residentId);
+      const response = await adminResidentService.getOne(residentId);
       if (response.success && response.data) {
         setResident(response.data);
       } else {
@@ -52,7 +52,7 @@ export default function AdminResidentEditPage() {
 
   const handleSubmit = async (formData: FormData) => {
     if (id) {
-      await adminResidentService.updateResident(parseInt(id), formData);
+      await adminResidentService.update(parseInt(id), formData);
     }
   };
 

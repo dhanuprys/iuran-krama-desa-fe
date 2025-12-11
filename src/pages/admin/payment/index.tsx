@@ -8,7 +8,7 @@ import {
   FileText as FileTextIcon,
   MapPin as MapPinIcon,
   PlusIcon,
-  User as UserIcon
+  User as UserIcon,
 } from 'lucide-react';
 
 import type { Payment } from '@/types/entity';
@@ -31,7 +31,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import {
   Select,
   SelectContent,
@@ -39,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { formatCurrency } from '@/lib/utils';
@@ -160,22 +160,19 @@ export default function AdminPaymentPage() {
         ) : (
           <div className="space-y-4">
             {payments.map((payment) => (
-              <Card
-                key={payment.id}
-                className="hover:bg-muted/5 transition-all"
-              >
+              <Card key={payment.id} className="hover:bg-muted/5 transition-all">
                 <CardContent className="p-4">
-                  <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
+                  <div className="mb-4 flex flex-col items-start justify-between gap-4 md:flex-row">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-lg">
+                        <h3 className="text-lg font-bold">
                           {payment.invoice?.resident?.name || 'Tanpa Nama'}
                         </h3>
                         <Badge variant="outline" className="text-xs font-normal">
                           {payment.invoice?.resident?.resident_status?.name}
                         </Badge>
                       </div>
-                      <div className="flex items-center gap-1 text-muted-foreground text-sm mt-1">
+                      <div className="text-muted-foreground mt-1 flex items-center gap-1 text-sm">
                         <MapPinIcon className="h-3 w-3" />
                         <span>
                           {payment.invoice?.resident?.banjar?.name || 'Banjar Tidak Diketahui'}
@@ -183,8 +180,8 @@ export default function AdminPaymentPage() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-1 w-full md:w-auto text-right">
-                      <div className="text-2xl font-bold text-primary">
+                    <div className="flex w-full flex-col items-end gap-1 text-right md:w-auto">
+                      <div className="text-primary text-2xl font-bold">
                         {formatCurrency(payment.amount)}
                       </div>
                       {getStatusBadge(payment.status)}
@@ -193,46 +190,49 @@ export default function AdminPaymentPage() {
 
                   <Separator className="my-3" />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm mt-4">
+                  <div className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
                     <div className="flex items-center gap-2">
-                      <FileTextIcon className="h-4 w-4 text-muted-foreground" />
+                      <FileTextIcon className="text-muted-foreground h-4 w-4" />
                       <div>
-                        <p className="text-xs text-muted-foreground">No. Invoice</p>
+                        <p className="text-muted-foreground text-xs">No. Invoice</p>
                         <p className="font-medium">#{payment.invoice_id}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      <CalendarIcon className="text-muted-foreground h-4 w-4" />
                       <div>
-                        <p className="text-xs text-muted-foreground">Tanggal Bayar</p>
+                        <p className="text-muted-foreground text-xs">Tanggal Bayar</p>
                         <p className="font-medium">
                           {new Date(payment.date).toLocaleDateString('id-ID', {
                             day: 'numeric',
                             month: 'long',
-                            year: 'numeric'
+                            year: 'numeric',
                           })}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
+                      <CreditCardIcon className="text-muted-foreground h-4 w-4" />
                       <div>
-                        <p className="text-xs text-muted-foreground">Metode</p>
+                        <p className="text-muted-foreground text-xs">Metode</p>
                         <p className="font-medium capitalize">{payment.method}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <UserIcon className="h-4 w-4 text-muted-foreground" />
+                      <UserIcon className="text-muted-foreground h-4 w-4" />
                       <div className="flex-1">
-                        <p className="text-xs text-muted-foreground">Diterima Oleh</p>
+                        <p className="text-muted-foreground text-xs">Diterima Oleh</p>
                         <div className="flex items-center justify-between">
-                          <p className="font-medium truncate max-w-[120px]" title={payment.user?.name}>
+                          <p
+                            className="max-w-[120px] truncate font-medium"
+                            title={payment.user?.name}
+                          >
                             {payment.user?.name || '-'}
                           </p>
-                          <Button asChild size="icon" variant="ghost" className="h-6 w-6 ml-2">
+                          <Button asChild size="icon" variant="ghost" className="ml-2 h-6 w-6">
                             <Link to={`/admin/payment/${payment.id}`}>
                               <EyeIcon className="h-3 w-3" />
                             </Link>

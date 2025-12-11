@@ -21,8 +21,8 @@ import { ResidentCombobox } from '@/components/resident-combobox';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import { formatCurrency } from '@/lib/utils';
@@ -88,7 +88,9 @@ export default function AdminInvoiceCreatePage() {
   };
 
   const totalAmount =
-    (Number(formData.iuran_amount) || 0) + Number(formData.peturunan_amount) + Number(formData.dedosan_amount);
+    (Number(formData.iuran_amount) || 0) +
+    Number(formData.peturunan_amount) +
+    Number(formData.dedosan_amount);
 
   return (
     <LayoutContent>

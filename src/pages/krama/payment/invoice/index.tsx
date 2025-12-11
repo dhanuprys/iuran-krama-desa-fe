@@ -43,7 +43,9 @@ export default function KramaPaymentInvoicePage() {
   // ...
   const [meta, setMeta] = useState<PaginatedResponse<Invoice>['meta'] | null>(null);
 
-  const { download, loading: downloadLoading } = useDownloadInvoice(kramaInvoiceService.downloadInvoice);
+  const { download, loading: downloadLoading } = useDownloadInvoice(
+    kramaInvoiceService.downloadInvoice,
+  );
 
   useEffect(() => {
     if (activeResident) {

@@ -2,9 +2,9 @@ import * as React from 'react';
 
 import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 
-import type { Resident } from '@/services/admin-resident.service';
-import { apiClient } from '@/lib/api';
 import type { HttpResponse, PaginatedResponse } from '@/types/http';
+
+import type { Resident } from '@/services/admin-resident.service';
 
 import { useDebounce } from '@/hooks/use-debounce';
 
@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
+import { apiClient } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 interface ResidentComboboxProps {

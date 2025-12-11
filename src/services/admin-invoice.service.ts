@@ -37,7 +37,11 @@ export class AdminInvoiceService {
     return response.data;
   }
 
-  async previewBulk(data: { invoice_date: string; peturunan_amount?: number; dedosan_amount?: number }) {
+  async previewBulk(data: {
+    invoice_date: string;
+    peturunan_amount?: number;
+    dedosan_amount?: number;
+  }) {
     const response = await apiClient.post<HttpResponse<any>>('/admin/invoices/bulk-preview', data);
     return response.data;
   }

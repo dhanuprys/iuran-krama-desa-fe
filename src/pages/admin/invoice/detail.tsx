@@ -44,8 +44,12 @@ export default function AdminInvoiceDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { download, loading: downloadLoading } = useDownloadInvoice(adminInvoiceService.downloadInvoice);
-  const { download: downloadReceipt, loading: receiptLoading } = useDownloadReceipt(adminPaymentService.downloadReceipt);
+  const { download, loading: downloadLoading } = useDownloadInvoice(
+    adminInvoiceService.downloadInvoice,
+  );
+  const { download: downloadReceipt, loading: receiptLoading } = useDownloadReceipt(
+    adminPaymentService.downloadReceipt,
+  );
 
   useBreadcrumb([{ title: 'Kelola Tagihan', href: '/admin/invoice' }, { title: 'Detail Tagihan' }]);
 

@@ -1,5 +1,6 @@
-import useAuth from '@/stores/auth.store';
 import { Navigate } from 'react-router-dom';
+
+import useAuth from '@/stores/auth.store';
 
 export default function HomePage({ loadingSkeleton }: { loadingSkeleton: React.ReactNode }) {
   const auth = useAuth();

@@ -19,7 +19,7 @@ export default function AdminResidentCreatePage() {
   ]);
 
   const handleSubmit = async (formData: FormData) => {
-    await adminResidentService.createResident(formData);
+    await adminResidentService.create(formData);
   };
 
   return (

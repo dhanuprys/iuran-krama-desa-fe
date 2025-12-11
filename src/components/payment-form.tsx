@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
+import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, Check, Loader2, SaveIcon, Search } from 'lucide-react';
-
-import type { Invoice, Payment } from '@/types/entity';
-import type { HttpResponse, PaginatedResponse } from '@/types/http';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import {
   Dialog,
   DialogContent,
@@ -16,9 +16,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Field, FieldContent, FieldLabel } from '@/components/ui/field';
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { CurrencyInput } from '@/components/ui/currency-input';
 import {
   Select,
   SelectContent,
@@ -26,17 +30,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { apiClient } from '@/lib/api';
 import { formatCurrency } from '@/lib/utils';
+import type { Invoice, Payment } from '@/types/entity';
+import type { HttpResponse, PaginatedResponse } from '@/types/http';
+
+const paymentSchema = z.object({
+  invoice_id: z.string().min(1, 'Invoice wajib dipilih'),
+  amount: z.string().min(1, 'Jumlah pembayaran wajib diisi'),
+  date: z.string().min(1, 'Tanggal pembayaran wajib diisi'),
+  method: z.string().min(1, 'Metode pembayaran wajib dipilih'),
+  status: z.enum(['paid', 'pending', 'invalid']),
+});
+
+type PaymentFormValues = z.infer<typeof paymentSchema>;
 
 interface PaymentFormProps {
   initialData?: Payment;
-  invoiceId?: string; // If creating for a specific invoice
-  onSubmit: (data: any) => Promise<void>;
+  invoiceId?: string;
+  onSubmit: (data: PaymentFormValues) => Promise<void>;
   isEditing?: boolean;
-  baseApiUrl: string; // e.g., '/admin' or '/operator'
+  baseApiUrl: string;
 }
 
 export function PaymentForm({
@@ -47,28 +69,40 @@ export function PaymentForm({
   baseApiUrl,
 }: PaymentFormProps) {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [invoice, setInvoice] = useState<Invoice | null>(initialData?.invoice || null);
+  const [invoice, setInvoice] = useState<Invoice | null>(
+    initialData?.invoice || null
+  );
 
   // Search State
   const [searchTerm, setSearchTerm] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<Invoice[]>([]);
   const [showSearchDialog, setShowSearchDialog] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
-  // Form State
-  const [formData, setFormData] = useState({
-    invoice_id: initialData?.invoice_id?.toString() || invoiceId || '',
-    amount: initialData?.amount?.toString() || '',
-    date: initialData?.date
-      ? new Date(initialData.date).toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0],
-    method: initialData?.method || 'cash',
-    status: initialData?.status || 'paid',
+  const form = useForm<PaymentFormValues>({
+    resolver: zodResolver(paymentSchema),
+    defaultValues: {
+      invoice_id: initialData?.invoice_id?.toString() || invoiceId || '',
+      amount: initialData?.amount?.toString() || '',
+      date: initialData?.date
+        ? new Date(initialData.date).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0],
+      method: initialData?.method || 'cash',
+      status: initialData?.status || 'paid',
+    },
   });
 
-  // Fetch invoice details if ID provided (e.g. from URL)
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    setError,
+    formState: { errors, isSubmitting },
+  } = form;
+
+
+  // Fetch invoice details if ID provided or changed
   useEffect(() => {
     if (invoiceId && !invoice) {
       fetchInvoiceById(invoiceId);
@@ -77,20 +111,26 @@ export function PaymentForm({
 
   const fetchInvoiceById = async (id: string) => {
     if (!id) return;
-
     try {
-      const res = await apiClient.get<HttpResponse<Invoice>>(`${baseApiUrl}/invoices/${id}`);
+      const res = await apiClient.get<HttpResponse<Invoice>>(
+        `${baseApiUrl}/invoices/${id}`
+      );
       if (res.data.success && res.data.data) {
         selectInvoice(res.data.data);
-      } else {
-        setInvoice(null);
-        setError('Invoice tidak ditemukan');
       }
     } catch (e) {
       console.error(e);
-      setInvoice(null);
-      setError('Invoice tidak ditemukan');
     }
+  };
+
+  const calculateRemaining = (inv: Invoice) => {
+    const totalPaid =
+      inv.payments?.reduce(
+        (sum, p) =>
+          sum + (typeof p.amount === 'string' ? parseFloat(p.amount) : p.amount),
+        0
+      ) || 0;
+    return Math.max(0, inv.total_amount - totalPaid);
   };
 
   const handleSearchInvoice = async (e: React.FormEvent) => {
@@ -98,31 +138,33 @@ export function PaymentForm({
     if (!searchTerm) return;
 
     setSearchLoading(true);
-    setError(null);
+    setSearchError(null);
 
     try {
-      const res = await apiClient.get<PaginatedResponse<Invoice>>(`${baseApiUrl}/invoices`, {
-        params: {
-          search: searchTerm,
-          per_page: 10,
-        },
-      });
+      const res = await apiClient.get<PaginatedResponse<Invoice>>(
+        `${baseApiUrl}/invoices`,
+        {
+          params: {
+            search: searchTerm,
+            per_page: 10,
+          },
+        }
+      );
 
       const invoices = res.data.data;
 
       if (invoices.length === 0) {
-        setError('Invoice tidak ditemukan.');
-        setInvoice(null);
+        setSearchError('Invoice tidak ditemukan.');
       } else if (invoices.length === 1) {
         selectInvoice(invoices[0]);
-        setSearchTerm(''); // Clear search after selection if desired
+        setSearchTerm('');
       } else {
         setSearchResults(invoices);
         setShowSearchDialog(true);
       }
     } catch (e) {
       console.error(e);
-      setError('Gagal mencari invoice.');
+      setSearchError('Gagal mencari invoice.');
     } finally {
       setSearchLoading(false);
     }
@@ -130,68 +172,46 @@ export function PaymentForm({
 
   const selectInvoice = (selectedInvoice: Invoice) => {
     setInvoice(selectedInvoice);
-    setFormData((prev) => ({
-      ...prev,
-      invoice_id: selectedInvoice.id.toString(),
-      // Auto fill amount only if not editing and amount is empty
-      amount: (!isEditing && !prev.amount) ? calculateRemaining(selectedInvoice).toString() : prev.amount
-    }));
-    setShowSearchDialog(false);
-    setError(null);
-  };
-
-  const calculateRemaining = (inv: Invoice) => {
-    const totalPaid =
-      inv.payments?.reduce(
-        (sum, p) => sum + (typeof p.amount === 'string' ? parseFloat(p.amount) : p.amount),
-        0,
-      ) || 0;
-    return Math.max(0, inv.total_amount - totalPaid);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    if (!formData.invoice_id) {
-      setError('ID Invoice wajib diisi. Silakan cari dan pilih invoice terlebih dahulu.');
-      setLoading(false);
-      return;
+    setValue('invoice_id', selectedInvoice.id.toString());
+    const remaining = calculateRemaining(selectedInvoice);
+    if (!isEditing) {
+      setValue('amount', remaining.toString());
     }
+    setShowSearchDialog(false);
+    setSearchError(null);
+  };
 
+  const onFormSubmit = async (data: PaymentFormValues) => {
     try {
-      await onSubmit(formData);
+      await onSubmit(data);
     } catch (err: any) {
       console.error(err);
       if (err?.response?.data?.error?.details) {
         const details = err.response.data.error.details;
-        const messages = Object.values(details).flat().join(', ');
-        setError(messages || 'Validasi gagal.');
+        Object.entries(details).forEach(([key, messages]: [string, any]) => {
+          if (Array.isArray(messages) && messages.length > 0) {
+            setError(key as any, { type: 'server', message: messages[0] });
+          }
+        });
       } else {
-        setError(err?.response?.data?.message || err?.message || 'Terjadi kesalahan.');
+        setError('root', {
+          type: 'server',
+          message:
+            err?.response?.data?.message || err?.message || 'Terjadi kesalahan.',
+        });
       }
-    } finally {
-      setLoading(false);
     }
   };
 
   const { totalPaid, remaining } = invoice
     ? {
-      totalPaid: invoice.payments?.reduce(
-        (sum, p) => sum + (typeof p.amount === 'string' ? parseFloat(p.amount) : p.amount),
-        0,
-      ) || 0,
-      remaining: calculateRemaining(invoice)
+      totalPaid:
+        invoice.payments?.reduce(
+          (sum, p) =>
+            sum + (typeof p.amount === 'string' ? parseFloat(p.amount) : p.amount),
+          0
+        ) || 0,
+      remaining: calculateRemaining(invoice),
     }
     : { totalPaid: 0, remaining: 0 };
 
@@ -209,10 +229,8 @@ export function PaymentForm({
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
               {!invoice && !invoiceId && !isEditing && (
-                <div className="space-y-4 rounded-lg border p-4 bg-slate-50">
-                  <label className="text-sm font-medium">
-                    Cari Invoice
-                  </label>
+                <div className="space-y-4 rounded-lg border bg-slate-50 p-4">
+                  <label className="text-sm font-medium">Cari Invoice</label>
                   <form onSubmit={handleSearchInvoice} className="flex gap-2">
                     <Input
                       value={searchTerm}
@@ -221,16 +239,20 @@ export function PaymentForm({
                       className="flex-1 bg-white"
                       disabled={searchLoading}
                     />
-                    <Button
-                      type="submit"
-                      disabled={!searchTerm || searchLoading}
-                    >
-                      {searchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                    <Button type="submit" disabled={!searchTerm || searchLoading}>
+                      {searchLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Search className="h-4 w-4" />
+                      )}
                     </Button>
                   </form>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     Masukkan ID Invoice atau NIK/Nama Penduduk untuk mencari tagihan.
                   </p>
+                  {searchError && (
+                    <p className="text-destructive text-xs">{searchError}</p>
+                  )}
                 </div>
               )}
 
@@ -240,13 +262,19 @@ export function PaymentForm({
                 </label>
                 {invoice ? (
                   <div>
-                    <div className="text-lg font-semibold">{invoice.resident?.name}</div>
-                    <div className="text-muted-foreground text-sm">NIK: {invoice.resident?.nik}</div>
-                    <div className="text-xs font-mono text-slate-500 mt-1">Inv ID: {invoice.id}</div>
+                    <div className="text-lg font-semibold">
+                      {invoice.resident?.name}
+                    </div>
+                    <div className="text-muted-foreground text-sm">
+                      NIK: {invoice.resident?.nik}
+                    </div>
+                    <div className="mt-1 font-mono text-xs text-slate-500">
+                      Inv ID: {invoice.id}
+                    </div>
                   </div>
                 ) : (
                   <div className="text-muted-foreground text-sm italic">
-                    {invoiceId ? "Memuat data..." : "Belum ada invoice dipilih..."}
+                    {invoiceId ? 'Memuat data...' : 'Belum ada invoice dipilih...'}
                   </div>
                 )}
               </div>
@@ -267,7 +295,8 @@ export function PaymentForm({
                     <div>
                       <div className="text-muted-foreground">Status Pembayaran</div>
                       <div
-                        className={`font-medium ${remaining <= 0 ? 'text-green-600' : 'text-orange-600'}`}
+                        className={`font-medium ${remaining <= 0 ? 'text-green-600' : 'text-orange-600'
+                          }`}
                       >
                         {remaining <= 0 ? 'Lunas' : 'Belum Lunas'}
                       </div>
@@ -277,7 +306,9 @@ export function PaymentForm({
                   <div className="space-y-2 pt-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Total Tagihan</span>
-                      <span className="font-medium">{formatCurrency(invoice.total_amount)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(invoice.total_amount)}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Sudah Dibayar</span>
@@ -287,14 +318,18 @@ export function PaymentForm({
                     </div>
                     <div className="flex justify-between border-t pt-2 text-base font-bold">
                       <span>Sisa Tagihan</span>
-                      <span className="text-red-600">{formatCurrency(remaining)}</span>
+                      <span className="text-red-600">
+                        {formatCurrency(remaining)}
+                      </span>
                     </div>
                   </div>
                   {remaining <= 0 && (
-                    <Alert className="bg-green-50 text-green-800 border-green-200 mt-4">
+                    <Alert className="mt-4 border-green-200 bg-green-50 text-green-800">
                       <Check className="h-4 w-4" />
                       <AlertTitle>Lunas</AlertTitle>
-                      <AlertDescription>Tagihan ini sudah lunas sepenuhnya.</AlertDescription>
+                      <AlertDescription>
+                        Tagihan ini sudah lunas sepenuhnya.
+                      </AlertDescription>
                     </Alert>
                   )}
                 </>
@@ -304,12 +339,12 @@ export function PaymentForm({
         </div>
 
         <div className="md:col-span-1">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
+          <form onSubmit={handleSubmit((data) => onFormSubmit(data))} className="space-y-6">
+            {errors.root && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>{errors.root.message}</AlertDescription>
               </Alert>
             )}
 
@@ -318,88 +353,118 @@ export function PaymentForm({
                 <CardTitle>Form Pembayaran</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Hidden field for invoice_id */}
-                <input type="hidden" name="invoice_id" value={formData.invoice_id} />
+                <input type="hidden" {...form.register('invoice_id')} />
+                {errors.invoice_id && (
+                  <p className="text-destructive text-xs">
+                    {errors.invoice_id.message}
+                  </p>
+                )}
 
-                <Field>
-                  <FieldLabel>
-                    Jumlah Pembayaran (Rp) <span className="text-red-500">*</span>
-                  </FieldLabel>
-                  <FieldContent>
-                    <CurrencyInput
-                      name="amount"
-                      value={formData.amount}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, amount: value || '' }))}
-                      placeholder="0"
-                      required
-                      className="text-lg font-semibold"
-                      disabled={isEditing && formData.status === 'paid'} // Example logic if full paid check needed
-                    />
-                    <p className="text-muted-foreground mt-1 text-xs">
-                      Sisa Tagihan: {invoice ? formatCurrency(remaining) : '-'}
-                    </p>
-                  </FieldContent>
-                </Field>
+                <Controller
+                  control={control}
+                  name="amount"
+                  render={({ field: { onChange, value } }) => (
+                    <Field>
+                      <FieldLabel>
+                        Jumlah Pembayaran (Rp) <span className="text-red-500">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <CurrencyInput
+                          name="amount"
+                          value={value}
+                          onValueChange={(val) => onChange(val || '')}
+                          placeholder="0"
+                          required
+                          className="text-lg font-semibold"
+                          disabled={isEditing && initialData?.status === 'paid'}
+                        />
+                        <p className="text-muted-foreground mt-1 text-xs">
+                          Sisa Tagihan: {invoice ? formatCurrency(remaining) : '-'}
+                        </p>
+                      </FieldContent>
+                      <FieldError errors={[{ message: errors.amount?.message }]} />
+                    </Field>
+                  )}
+                />
 
-                <Field>
-                  <FieldLabel>
-                    Tanggal Pembayaran <span className="text-red-500">*</span>
-                  </FieldLabel>
-                  <FieldContent>
-                    <Input
-                      name="date"
-                      type="date"
-                      value={formData.date}
-                      onChange={handleChange}
-                      required
-                    />
-                  </FieldContent>
-                </Field>
+                <Controller
+                  control={control}
+                  name="date"
+                  render={({ field }) => (
+                    <Field>
+                      <FieldLabel>
+                        Tanggal Pembayaran <span className="text-red-500">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <Input type="date" {...field} required />
+                      </FieldContent>
+                      <FieldError errors={[{ message: errors.date?.message }]} />
+                    </Field>
+                  )}
+                />
 
-                <Field>
-                  <FieldLabel>Metode Pembayaran</FieldLabel>
-                  <FieldContent>
-                    <Select
-                      value={formData.method}
-                      onValueChange={(val) => handleSelectChange('method', val)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih Metode" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="cash">Tunai (Cash)</SelectItem>
-                        <SelectItem value="transfer">Transfer Bank</SelectItem>
-                        <SelectItem value="qris">QRIS</SelectItem>
-                        <SelectItem value="other">Lainnya</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FieldContent>
-                </Field>
+                <Controller
+                  control={control}
+                  name="method"
+                  render={({ field }) => (
+                    <Field>
+                      <FieldLabel>Metode Pembayaran</FieldLabel>
+                      <FieldContent>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih Metode" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="cash">Tunai (Cash)</SelectItem>
+                            <SelectItem value="transfer">Transfer Bank</SelectItem>
+                            <SelectItem value="qris">QRIS</SelectItem>
+                            <SelectItem value="other">Lainnya</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FieldContent>
+                      <FieldError errors={[{ message: errors.method?.message }]} />
+                    </Field>
+                  )}
+                />
 
-                <Field>
-                  <FieldLabel>Status</FieldLabel>
-                  <FieldContent>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(val) => handleSelectChange('status', val)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="paid">Lunas (Paid)</SelectItem>
-                        <SelectItem value="pending">Menunggu (Pending)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FieldContent>
-                </Field>
+                <Controller
+                  control={control}
+                  name="status"
+                  render={({ field }) => (
+                    <Field>
+                      <FieldLabel>Status</FieldLabel>
+                      <FieldContent>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih Status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="paid">Lunas (Paid)</SelectItem>
+                            <SelectItem value="pending">
+                              Menunggu (Pending)
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FieldContent>
+                      <FieldError errors={[{ message: errors.status?.message }]} />
+                    </Field>
+                  )}
+                />
 
                 <div className="flex justify-end gap-3 pt-4">
-                  <Button type="button" variant="ghost" onClick={() => navigate(baseApiUrl + '/payment')}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => navigate(baseApiUrl + '/payment')}
+                  >
                     Batal
                   </Button>
-                  <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-                    {loading && (
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full sm:w-auto"
+                  >
+                    {isSubmitting && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
                     <SaveIcon className="mr-2 h-4 w-4" />
@@ -418,7 +483,8 @@ export function PaymentForm({
           <DialogHeader>
             <DialogTitle>Pilih Invoice</DialogTitle>
             <DialogDescription>
-              Ditemukan beberapa invoice. Silakan pilih salah satu untuk melanjutkan pembayaran.
+              Ditemukan beberapa invoice. Silakan pilih salah satu untuk melanjutkan
+              pembayaran.
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto">
@@ -438,10 +504,14 @@ export function PaymentForm({
                     <TableCell className="font-mono text-xs">{inv.id}</TableCell>
                     <TableCell>
                       <div className="font-medium">{inv.resident?.name}</div>
-                      <div className="text-xs text-muted-foreground">{inv.resident?.nik}</div>
+                      <div className="text-muted-foreground text-xs">
+                        {inv.resident?.nik}
+                      </div>
                     </TableCell>
                     <TableCell>{inv.invoice_date}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(inv.total_amount)}</TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(inv.total_amount)}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button size="sm" onClick={() => selectInvoice(inv)}>
                         Pilih
@@ -457,4 +527,3 @@ export function PaymentForm({
     </>
   );
 }
-

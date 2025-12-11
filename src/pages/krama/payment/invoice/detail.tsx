@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-import { AlertCircle, ArrowLeft, Calendar, FileText, User, Printer } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Calendar, FileText, Printer, User } from 'lucide-react';
 
 import type { Invoice } from '@/types/entity';
 
@@ -43,8 +43,12 @@ export default function KramaPaymentInvoiceDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { download, loading: downloadLoading } = useDownloadInvoice(kramaInvoiceService.downloadInvoice);
-  const { download: downloadReceipt, loading: receiptLoading } = useDownloadReceipt(kramaPaymentService.downloadReceipt);
+  const { download, loading: downloadLoading } = useDownloadInvoice(
+    kramaInvoiceService.downloadInvoice,
+  );
+  const { download: downloadReceipt, loading: receiptLoading } = useDownloadReceipt(
+    kramaPaymentService.downloadReceipt,
+  );
 
   useEffect(() => {
     if (invoiceId) {
