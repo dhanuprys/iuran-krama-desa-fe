@@ -11,9 +11,12 @@ import useAuth from '@/stores/auth.store';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 
+import { useAppStore } from '@/stores/app.store';
+
 export function NavUser() {
   const user = useAuth((state) => state.user);
   const navigate = useNavigate();
+  const { frontendVersion, backendVersion } = useAppStore();
 
   if (!user) return null;
 
@@ -44,6 +47,13 @@ export function NavUser() {
             <span className="truncate text-xs">{user.email}</span>
           </div>
           <ChevronsUpDown className="ml-auto size-4" />
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild>
+          <div className="text-[10px] bg-secondary text-muted-foreground flex justify-center">
+            v{frontendVersion} (API: v{backendVersion || '...'})
+          </div>
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>

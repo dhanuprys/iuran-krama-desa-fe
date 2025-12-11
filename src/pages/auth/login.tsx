@@ -4,12 +4,22 @@ import { useNavigate } from 'react-router-dom';
 import { Constants } from '@/config/constants';
 
 import useAuth from '@/stores/auth.store';
+import { useAppStore } from '@/stores/app.store';
 
 import { LoginForm } from '@/components/login-form';
 import { PageHead } from '@/components/page-head';
 
 import logo from '@/assets/desa-sangket.png';
 import loginImage from '@/assets/login.jpg';
+
+function VersionFooter() {
+  const { frontendVersion, backendVersion } = useAppStore();
+  return (
+    <div className="text-center text-xs text-muted-foreground">
+      v{frontendVersion} (API: v{backendVersion || '...'})
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const user = useAuth((state) => state.user);
@@ -42,10 +52,11 @@ export default function LoginPage() {
             </div>
           </a>
         </div>
-        <div className="flex flex-1 items-center justify-center">
+        <div className="flex flex-1 items-center justify-center flex-col gap-4">
           <div className="w-full max-w-xs">
             <LoginForm />
           </div>
+          <VersionFooter />
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
