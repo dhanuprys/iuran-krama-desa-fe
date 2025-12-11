@@ -60,7 +60,7 @@ export function SiteHeader({ breadcrumbs }: Props) {
         {/* <SearchForm className="w-full sm:ml-auto sm:w-auto" /> */}
         <div className="ml-auto flex items-center gap-2">
           {/* <div className="hidden md:block"> */}
-          {user?.role !== Constants.ROLES.ADMIN && <ResidentSelector />}
+          {user?.role === Constants.ROLES.KRAMA && <ResidentSelector />}
           {/* </div> */}
           <ModeToggle />
         </div>
