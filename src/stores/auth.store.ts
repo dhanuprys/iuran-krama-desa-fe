@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 
 import { Constants } from '@/config/constants';
-import { SecureStorage } from '@/lib/secure-storage';
 
 import type { AuthenticatedUser } from '@/types/entity';
 
 import AuthService from '@/services/auth.service';
 
 import { apiClient } from '@/lib/api';
+import { SecureStorage } from '@/lib/secure-storage';
 
 interface AuthStore {
   user: AuthenticatedUser | null;

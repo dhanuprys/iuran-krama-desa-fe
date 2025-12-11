@@ -1,9 +1,13 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, Check, Loader2, SaveIcon, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertCircle, Check, Loader2, SaveIcon, Search } from 'lucide-react';
 import { z } from 'zod';
+
+import type { Invoice, Payment } from '@/types/entity';
+import type { HttpResponse, PaginatedResponse } from '@/types/http';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -16,12 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Field,
-  FieldContent,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldContent, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -38,10 +37,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+
 import { apiClient } from '@/lib/api';
 import { formatCurrency } from '@/lib/utils';
-import type { Invoice, Payment } from '@/types/entity';
-import type { HttpResponse, PaginatedResponse } from '@/types/http';
 
 const paymentSchema = z.object({
   invoice_id: z.string().min(1, 'Invoice wajib dipilih'),
@@ -69,9 +67,7 @@ export function PaymentForm({
   baseApiUrl,
 }: PaymentFormProps) {
   const navigate = useNavigate();
-  const [invoice, setInvoice] = useState<Invoice | null>(
-    initialData?.invoice || null
-  );
+  const [invoice, setInvoice] = useState<Invoice | null>(initialData?.invoice || null);
 
   // Search State
   const [searchTerm, setSearchTerm] = useState('');
@@ -101,7 +97,6 @@ export function PaymentForm({
     formState: { errors, isSubmitting },
   } = form;
 
-
   // Fetch invoice details if ID provided or changed
   useEffect(() => {
     if (invoiceId && !invoice) {
@@ -112,9 +107,7 @@ export function PaymentForm({
   const fetchInvoiceById = async (id: string) => {
     if (!id) return;
     try {
-      const res = await apiClient.get<HttpResponse<Invoice>>(
-        `${baseApiUrl}/invoices/${id}`
-      );
+      const res = await apiClient.get<HttpResponse<Invoice>>(`${baseApiUrl}/invoices/${id}`);
       if (res.data.success && res.data.data) {
         selectInvoice(res.data.data);
       }
@@ -126,9 +119,8 @@ export function PaymentForm({
   const calculateRemaining = (inv: Invoice) => {
     const totalPaid =
       inv.payments?.reduce(
-        (sum, p) =>
-          sum + (typeof p.amount === 'string' ? parseFloat(p.amount) : p.amount),
-        0
+        (sum, p) => sum + (typeof p.amount === 'string' ? parseFloat(p.amount) : p.amount),
+        0,
       ) || 0;
     return Math.max(0, inv.total_amount - totalPaid);
   };
@@ -141,15 +133,12 @@ export function PaymentForm({
     setSearchError(null);
 
     try {
-      const res = await apiClient.get<PaginatedResponse<Invoice>>(
-        `${baseApiUrl}/invoices`,
-        {
-          params: {
-            search: searchTerm,
-            per_page: 10,
-          },
-        }
-      );
+      const res = await apiClient.get<PaginatedResponse<Invoice>>(`${baseApiUrl}/invoices`, {
+        params: {
+          search: searchTerm,
+          per_page: 10,
+        },
+      });
 
       const invoices = res.data.data;
 
@@ -196,8 +185,7 @@ export function PaymentForm({
       } else {
         setError('root', {
           type: 'server',
-          message:
-            err?.response?.data?.message || err?.message || 'Terjadi kesalahan.',
+          message: err?.response?.data?.message || err?.message || 'Terjadi kesalahan.',
         });
       }
     }
@@ -205,14 +193,13 @@ export function PaymentForm({
 
   const { totalPaid, remaining } = invoice
     ? {
-      totalPaid:
-        invoice.payments?.reduce(
-          (sum, p) =>
-            sum + (typeof p.amount === 'string' ? parseFloat(p.amount) : p.amount),
-          0
-        ) || 0,
-      remaining: calculateRemaining(invoice),
-    }
+        totalPaid:
+          invoice.payments?.reduce(
+            (sum, p) => sum + (typeof p.amount === 'string' ? parseFloat(p.amount) : p.amount),
+            0,
+          ) || 0,
+        remaining: calculateRemaining(invoice),
+      }
     : { totalPaid: 0, remaining: 0 };
 
   return (
@@ -250,9 +237,7 @@ export function PaymentForm({
                   <p className="text-muted-foreground text-xs">
                     Masukkan ID Invoice atau NIK/Nama Penduduk untuk mencari tagihan.
                   </p>
-                  {searchError && (
-                    <p className="text-destructive text-xs">{searchError}</p>
-                  )}
+                  {searchError && <p className="text-destructive text-xs">{searchError}</p>}
                 </div>
               )}
 
@@ -262,9 +247,7 @@ export function PaymentForm({
                 </label>
                 {invoice ? (
                   <div>
-                    <div className="text-lg font-semibold">
-                      {invoice.resident?.name}
-                    </div>
+                    <div className="text-lg font-semibold">{invoice.resident?.name}</div>
                     <div className="text-muted-foreground text-sm">
                       NIK: {invoice.resident?.nik}
                     </div>
@@ -295,8 +278,9 @@ export function PaymentForm({
                     <div>
                       <div className="text-muted-foreground">Status Pembayaran</div>
                       <div
-                        className={`font-medium ${remaining <= 0 ? 'text-green-600' : 'text-orange-600'
-                          }`}
+                        className={`font-medium ${
+                          remaining <= 0 ? 'text-green-600' : 'text-orange-600'
+                        }`}
                       >
                         {remaining <= 0 ? 'Lunas' : 'Belum Lunas'}
                       </div>
@@ -306,9 +290,7 @@ export function PaymentForm({
                   <div className="space-y-2 pt-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Total Tagihan</span>
-                      <span className="font-medium">
-                        {formatCurrency(invoice.total_amount)}
-                      </span>
+                      <span className="font-medium">{formatCurrency(invoice.total_amount)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Sudah Dibayar</span>
@@ -318,18 +300,14 @@ export function PaymentForm({
                     </div>
                     <div className="flex justify-between border-t pt-2 text-base font-bold">
                       <span>Sisa Tagihan</span>
-                      <span className="text-red-600">
-                        {formatCurrency(remaining)}
-                      </span>
+                      <span className="text-red-600">{formatCurrency(remaining)}</span>
                     </div>
                   </div>
                   {remaining <= 0 && (
                     <Alert className="mt-4 border-green-200 bg-green-50 text-green-800">
                       <Check className="h-4 w-4" />
                       <AlertTitle>Lunas</AlertTitle>
-                      <AlertDescription>
-                        Tagihan ini sudah lunas sepenuhnya.
-                      </AlertDescription>
+                      <AlertDescription>Tagihan ini sudah lunas sepenuhnya.</AlertDescription>
                     </Alert>
                   )}
                 </>
@@ -355,9 +333,7 @@ export function PaymentForm({
               <CardContent className="space-y-4">
                 <input type="hidden" {...form.register('invoice_id')} />
                 {errors.invoice_id && (
-                  <p className="text-destructive text-xs">
-                    {errors.invoice_id.message}
-                  </p>
+                  <p className="text-destructive text-xs">{errors.invoice_id.message}</p>
                 )}
 
                 <Controller
@@ -440,9 +416,7 @@ export function PaymentForm({
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="paid">Lunas (Paid)</SelectItem>
-                            <SelectItem value="pending">
-                              Menunggu (Pending)
-                            </SelectItem>
+                            <SelectItem value="pending">Menunggu (Pending)</SelectItem>
                           </SelectContent>
                         </Select>
                       </FieldContent>
@@ -459,14 +433,8 @@ export function PaymentForm({
                   >
                     Batal
                   </Button>
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full sm:w-auto"
-                  >
-                    {isSubmitting && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
+                  <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     <SaveIcon className="mr-2 h-4 w-4" />
                     Simpan Pembayaran
                   </Button>
@@ -483,8 +451,7 @@ export function PaymentForm({
           <DialogHeader>
             <DialogTitle>Pilih Invoice</DialogTitle>
             <DialogDescription>
-              Ditemukan beberapa invoice. Silakan pilih salah satu untuk melanjutkan
-              pembayaran.
+              Ditemukan beberapa invoice. Silakan pilih salah satu untuk melanjutkan pembayaran.
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto">
@@ -504,14 +471,10 @@ export function PaymentForm({
                     <TableCell className="font-mono text-xs">{inv.id}</TableCell>
                     <TableCell>
                       <div className="font-medium">{inv.resident?.name}</div>
-                      <div className="text-muted-foreground text-xs">
-                        {inv.resident?.nik}
-                      </div>
+                      <div className="text-muted-foreground text-xs">{inv.resident?.nik}</div>
                     </TableCell>
                     <TableCell>{inv.invoice_date}</TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(inv.total_amount)}
-                    </TableCell>
+                    <TableCell className="text-right">{formatCurrency(inv.total_amount)}</TableCell>
                     <TableCell className="text-right">
                       <Button size="sm" onClick={() => selectInvoice(inv)}>
                         Pilih

@@ -1,5 +1,6 @@
-import { SecureStorage } from '@/lib/secure-storage';
 import { createContext, useContext, useEffect, useState } from 'react';
+
+import { SecureStorage } from '@/lib/secure-storage';
 
 type Theme = 'dark' | 'light' | 'system';
 
