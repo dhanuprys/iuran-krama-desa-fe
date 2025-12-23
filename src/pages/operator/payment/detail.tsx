@@ -27,16 +27,18 @@ import { Separator } from '@/components/ui/separator';
 import { formatCurrency } from '@/lib/utils';
 
 export default function OperatorPaymentDetailPage() {
-  useBreadcrumb([
-    { title: 'Kelola Pembayaran', href: '/operator/payment' },
-    { title: 'Detail Pembayaran' },
-  ]);
+
 
   const { id } = useParams();
   const navigate = useNavigate();
   const [payment, setPayment] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useBreadcrumb([
+    { title: 'Kelola Pembayaran', href: '/operator/payment' },
+    { title: payment ? `Detail Pembayaran #${payment.id}` : 'Detail Pembayaran' },
+  ]);
 
   useEffect(() => {
     if (id) {

@@ -28,7 +28,10 @@ export default function AdminBanjarDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useBreadcrumb([{ title: 'Kelola Banjar', href: '/admin/banjar' }, { title: 'Detail Banjar' }]);
+  useBreadcrumb([
+    { title: 'Kelola Banjar', href: '/admin/banjar' },
+    { title: banjar ? `Detail Banjar - ${banjar.name}` : 'Detail Banjar' },
+  ]);
 
   useEffect(() => {
     const fetchBanjar = async () => {

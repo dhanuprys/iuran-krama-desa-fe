@@ -51,7 +51,10 @@ export default function AdminInvoiceDetailPage() {
     adminPaymentService.downloadReceipt,
   );
 
-  useBreadcrumb([{ title: 'Kelola Tagihan', href: '/admin/invoice' }, { title: 'Detail Tagihan' }]);
+  useBreadcrumb([
+    { title: 'Kelola Tagihan', href: '/admin/invoice' },
+    { title: invoice ? `Detail Tagihan #${invoice.id}` : 'Detail Tagihan' },
+  ]);
 
   useEffect(() => {
     const fetchInvoice = async () => {

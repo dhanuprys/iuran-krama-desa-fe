@@ -19,13 +19,15 @@ import { ResidentForm } from '@/components/resident-form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function AdminResidentEditPage() {
-  useBreadcrumb([
-    { title: 'Kelola Penduduk', href: '/admin/resident' },
-    { title: 'Edit Penduduk' },
-  ]);
+
 
   const { id } = useParams();
   const [resident, setResident] = useState<Resident | null>(null);
+
+  useBreadcrumb([
+    { title: 'Kelola Penduduk', href: '/admin/resident' },
+    { title: resident ? `Edit Penduduk - ${resident.name}` : 'Edit Penduduk' },
+  ]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

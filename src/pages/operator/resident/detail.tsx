@@ -38,16 +38,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency } from '@/lib/utils';
 
 export default function OperatorResidentDetailPage() {
-  useBreadcrumb([
-    { title: 'Kelola Penduduk', href: '/operator/resident' },
-    { title: 'Detail Penduduk' },
-  ]);
+
 
   const { id } = useParams();
   const navigate = useNavigate();
   const [resident, setResident] = useState<Resident | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useBreadcrumb([
+    { title: 'Kelola Penduduk', href: '/operator/resident' },
+    {
+      title: resident ? `Detail Penduduk - ${resident.name}` : 'Detail Penduduk',
+    },
+  ]);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
@@ -331,7 +335,7 @@ export default function OperatorResidentDetailPage() {
               <CardContent>
                 {location ? (
                   <div className="h-[400px] overflow-hidden rounded-lg border">
-                    <MapPicker value={location} onChange={() => {}} />
+                    <MapPicker value={location} onChange={() => { }} />
                   </div>
                 ) : (
                   <div className="bg-muted text-muted-foreground flex h-[200px] flex-col items-center justify-center rounded-lg border">
@@ -396,8 +400,8 @@ export default function OperatorResidentDetailPage() {
                             <Badge
                               variant={
                                 invoice.payments &&
-                                invoice.payments.length > 0 &&
-                                invoice.payments[0].status === 'paid'
+                                  invoice.payments.length > 0 &&
+                                  invoice.payments[0].status === 'paid'
                                   ? 'default'
                                   : 'secondary'
                               }

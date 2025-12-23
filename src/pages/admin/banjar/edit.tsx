@@ -27,7 +27,7 @@ export default function AdminBanjarEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  useBreadcrumb([{ title: 'Kelola Banjar', href: '/admin/banjar' }, { title: 'Edit Banjar' }]);
+
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -36,6 +36,11 @@ export default function AdminBanjarEditPage() {
     name: '',
     address: '',
   });
+
+  useBreadcrumb([
+    { title: 'Kelola Banjar', href: '/admin/banjar' },
+    { title: formData.name ? `Edit Banjar - ${formData.name}` : 'Edit Banjar' },
+  ]);
 
   useEffect(() => {
     const fetchBanjar = async () => {
