@@ -6,12 +6,11 @@ import { ChevronsUpDown } from 'lucide-react';
 
 import { Constants } from '@/config/constants';
 
+import { useAppStore } from '@/stores/app.store';
 import useAuth from '@/stores/auth.store';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-
-import { useAppStore } from '@/stores/app.store';
 
 export function NavUser() {
   const user = useAuth((state) => state.user);
@@ -51,7 +50,7 @@ export function NavUser() {
       </SidebarMenuItem>
       <SidebarMenuItem>
         <SidebarMenuButton asChild>
-          <div className="text-[10px] bg-secondary text-muted-foreground flex justify-center">
+          <div className="bg-secondary text-muted-foreground flex justify-center text-[10px]">
             v{frontendVersion} (API: v{backendVersion || '...'})
           </div>
         </SidebarMenuButton>

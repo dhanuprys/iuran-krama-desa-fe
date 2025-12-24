@@ -32,13 +32,18 @@ import {
 } from '@/components/ui/table';
 
 export default function AdminFamilyDetailPage() {
-  useBreadcrumb([{ title: 'Keluarga', href: '/admin/family' }, { title: 'Detail Keluarga' }]);
-
   const { id: family_card_number } = useParams();
   const navigate = useNavigate();
   const [family, setFamily] = useState<Family | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useBreadcrumb([
+    { title: 'Keluarga', href: '/admin/family' },
+    {
+      title: family ? `Detail Keluarga #${family.family_card_number}` : 'Detail Keluarga',
+    },
+  ]);
 
   useEffect(() => {
     if (family_card_number) {

@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { Constants } from '@/config/constants';
 
-import useAuth from '@/stores/auth.store';
 import { useAppStore } from '@/stores/app.store';
+import useAuth from '@/stores/auth.store';
 
 import { LoginForm } from '@/components/login-form';
 import { PageHead } from '@/components/page-head';
@@ -15,7 +15,7 @@ import loginImage from '@/assets/login.jpg';
 function VersionFooter() {
   const { frontendVersion, backendVersion } = useAppStore();
   return (
-    <div className="text-center text-xs text-muted-foreground">
+    <div className="text-muted-foreground text-center text-xs">
       v{frontendVersion} (API: v{backendVersion || '...'})
     </div>
   );
@@ -52,7 +52,7 @@ export default function LoginPage() {
             </div>
           </a>
         </div>
-        <div className="flex flex-1 items-center justify-center flex-col gap-4">
+        <div className="flex flex-1 flex-col items-center justify-center gap-4">
           <div className="w-full max-w-xs">
             <LoginForm />
           </div>

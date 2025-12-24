@@ -31,11 +31,6 @@ export default function OperatorInvoiceEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  useBreadcrumb([
-    { title: 'Kelola Tagihan', href: '/operator/invoice' },
-    { title: 'Edit Tagihan' },
-  ]);
-
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +43,11 @@ export default function OperatorInvoiceEditPage() {
     dedosan_amount: 0,
     iuran_amount: 0,
   });
+
+  useBreadcrumb([
+    { title: 'Kelola Tagihan', href: '/operator/invoice' },
+    { title: id ? `Edit Tagihan #${id}` : 'Edit Tagihan' },
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {

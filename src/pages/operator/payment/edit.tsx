@@ -23,14 +23,14 @@ import { PaymentForm } from '@/components/payment-form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function OperatorPaymentEditPage() {
-  useBreadcrumb([
-    { title: 'Kelola Pembayaran', href: '/operator/payment' },
-    { title: 'Edit Pembayaran' },
-  ]);
-
   const navigate = useNavigate();
   const { id } = useParams();
   const [payment, setPayment] = useState<Payment | null>(null);
+
+  useBreadcrumb([
+    { title: 'Kelola Pembayaran', href: '/operator/payment' },
+    { title: payment ? `Edit Pembayaran #${payment.id}` : 'Edit Pembayaran' },
+  ]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

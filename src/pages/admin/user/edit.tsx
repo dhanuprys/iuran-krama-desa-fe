@@ -35,13 +35,16 @@ export default function AdminUserEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  useBreadcrumb([{ title: 'Kelola Pengguna', href: '/admin/user' }, { title: 'Edit Pengguna' }]);
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [role, setRole] = useState('krama');
   const [canCreateResident, setCanCreateResident] = useState(false);
   const [defaultValues, setDefaultValues] = useState<any>({});
+
+  useBreadcrumb([
+    { title: 'Kelola Pengguna', href: '/admin/user' },
+    { title: defaultValues.name ? `Edit Pengguna - ${defaultValues.name}` : 'Edit Pengguna' },
+  ]);
 
   useEffect(() => {
     if (id) fetchUser(Number(id));

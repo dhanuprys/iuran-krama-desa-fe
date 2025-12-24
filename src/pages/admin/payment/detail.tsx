@@ -38,11 +38,6 @@ import { Separator } from '@/components/ui/separator';
 import { formatCurrency } from '@/lib/utils';
 
 export default function AdminPaymentDetailPage() {
-  useBreadcrumb([
-    { title: 'Kelola Pembayaran', href: '/admin/payment' },
-    { title: 'Detail Pembayaran' },
-  ]);
-
   const { id } = useParams();
   const navigate = useNavigate();
   const [payment, setPayment] = useState<Payment | null>(null);
@@ -50,6 +45,11 @@ export default function AdminPaymentDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+
+  useBreadcrumb([
+    { title: 'Kelola Pembayaran', href: '/admin/payment' },
+    { title: payment ? `Detail Pembayaran #${payment.id}` : 'Detail Pembayaran' },
+  ]);
 
   useEffect(() => {
     if (id) {

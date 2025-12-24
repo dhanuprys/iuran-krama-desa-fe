@@ -26,11 +26,6 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 
 export default function AdminAnnouncementEditPage() {
-  useBreadcrumb([
-    { title: 'Kelola Pengumuman', href: '/admin/announcement' },
-    { title: 'Ubah Pengumuman' },
-  ]);
-
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<AnnouncementFormData>({
@@ -38,6 +33,11 @@ export default function AdminAnnouncementEditPage() {
     content: '',
     is_active: true,
   });
+
+  useBreadcrumb([
+    { title: 'Kelola Pengumuman', href: '/admin/announcement' },
+    { title: formData.title ? `Ubah Pengumuman - ${formData.title}` : 'Ubah Pengumuman' },
+  ]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

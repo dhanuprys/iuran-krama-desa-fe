@@ -38,16 +38,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency } from '@/lib/utils';
 
 export default function OperatorResidentDetailPage() {
-  useBreadcrumb([
-    { title: 'Kelola Penduduk', href: '/operator/resident' },
-    { title: 'Detail Penduduk' },
-  ]);
-
   const { id } = useParams();
   const navigate = useNavigate();
   const [resident, setResident] = useState<Resident | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useBreadcrumb([
+    { title: 'Kelola Penduduk', href: '/operator/resident' },
+    {
+      title: resident ? `Detail Penduduk - ${resident.name}` : 'Detail Penduduk',
+    },
+  ]);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
@@ -238,7 +240,7 @@ export default function OperatorResidentDetailPage() {
                     </div>
                     {resident.residence_name && (
                       <p className="text-muted-foreground mt-1 text-sm">
-                        Tempat: {resident.residence_name}
+                        Perumahan: {resident.residence_name}
                       </p>
                     )}
                   </div>

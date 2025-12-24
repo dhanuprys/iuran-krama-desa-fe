@@ -49,11 +49,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { formatCurrency } from '@/lib/utils';
 
 export default function AdminResidentDetailPage() {
-  useBreadcrumb([
-    { title: 'Kelola Penduduk', href: '/admin/resident' },
-    { title: 'Detail Penduduk' },
-  ]);
-
   const { id } = useParams();
   const navigate = useNavigate();
   const [resident, setResident] = useState<Resident | null>(null);
@@ -63,6 +58,13 @@ export default function AdminResidentDetailPage() {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+
+  useBreadcrumb([
+    { title: 'Kelola Penduduk', href: '/admin/resident' },
+    {
+      title: resident ? `Detail Penduduk - ${resident.name}` : 'Detail Penduduk',
+    },
+  ]);
 
   useEffect(() => {
     if (id) {
@@ -311,7 +313,7 @@ export default function AdminResidentDetailPage() {
                     </div>
                     {resident.residence_name && (
                       <p className="text-muted-foreground mt-1 text-sm">
-                        Tempat: {resident.residence_name}
+                        Perumahan: {resident.residence_name}
                       </p>
                     )}
                   </div>

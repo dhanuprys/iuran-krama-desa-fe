@@ -1,5 +1,7 @@
+import type { FormValidationErrors } from '@/types/form';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Field, FieldContent, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -9,18 +11,22 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+import { getFieldErrors } from '@/lib/utils';
+
 import type { ResidentFormData } from './types';
 
 interface PersonalDetailsProps {
   formData: ResidentFormData;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   handleSelectChange: (name: string, value: string) => void;
+  errors?: FormValidationErrors | null;
 }
 
 export function PersonalDetails({
   formData,
   handleChange,
   handleSelectChange,
+  errors,
 }: PersonalDetailsProps) {
   return (
     <Card>
@@ -43,6 +49,7 @@ export function PersonalDetails({
                 required
               />
             </FieldContent>
+            <FieldError errors={getFieldErrors(errors, 'nik')} />
           </Field>
           <Field>
             <FieldLabel>Nomor Kartu Keluarga</FieldLabel>
@@ -57,6 +64,7 @@ export function PersonalDetails({
                 required
               />
             </FieldContent>
+            <FieldError errors={getFieldErrors(errors, 'family_card_number')} />
           </Field>
         </FieldGroup>
 
@@ -72,6 +80,7 @@ export function PersonalDetails({
               required
             />
           </FieldContent>
+          <FieldError errors={getFieldErrors(errors, 'name')} />
         </Field>
 
         <FieldGroup className="grid gap-4 md:grid-cols-2">
@@ -91,6 +100,7 @@ export function PersonalDetails({
                 </SelectContent>
               </Select>
             </FieldContent>
+            <FieldError errors={getFieldErrors(errors, 'gender')} />
           </Field>
           <Field>
             <FieldLabel>Golongan Darah (Opsional)</FieldLabel>
@@ -111,6 +121,7 @@ export function PersonalDetails({
                 required
               />
             </FieldContent>
+            <FieldError errors={getFieldErrors(errors, 'place_of_birth')} />
           </Field>
           <Field>
             <FieldLabel>Tanggal Lahir</FieldLabel>
@@ -123,6 +134,7 @@ export function PersonalDetails({
                 required
               />
             </FieldContent>
+            <FieldError errors={getFieldErrors(errors, 'date_of_birth')} />
           </Field>
         </FieldGroup>
 

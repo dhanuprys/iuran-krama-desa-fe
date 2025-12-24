@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+import type { FormValidationErrors } from '@/types/form';
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -56,4 +58,20 @@ export function downloadPdf(blob: Blob, filename: string) {
   link.click();
   link.remove();
   window.URL.revokeObjectURL(url);
+}
+
+export function getFieldErrors(
+  errors: FormValidationErrors | null | undefined,
+  field: string,
+): { message: string }[] | undefined {
+  if (!errors || !errors[field]) return undefined;
+  // If it's a string (fallback), wrap it
+  if (typeof errors[field] === 'string') {
+    return [{ message: errors[field] as unknown as string }];
+  }
+  // If it's array
+  if (Array.isArray(errors[field])) {
+    return errors[field].map((msg) => ({ message: msg }));
+  }
+  return undefined;
 }

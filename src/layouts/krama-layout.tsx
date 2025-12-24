@@ -94,7 +94,7 @@ export default function KramaLayout() {
         <SiteHeader breadcrumbs={breadcrumbs} />
         <div className="flex flex-1">
           <AppSidebar config={sidebarConfig} />
-          <SidebarInset className="pb-20 md:mx-auto md:max-w-6xl md:min-w-6xl">
+          <SidebarInset className="pb-20 md:mx-auto md:max-w-7xl md:min-w-6xl">
             <Outlet context={{ setBreadcrumbs } satisfies BreadcrumbContextType} />
           </SidebarInset>
         </div>

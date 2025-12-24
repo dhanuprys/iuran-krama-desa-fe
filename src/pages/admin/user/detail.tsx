@@ -49,11 +49,14 @@ export default function AdminUserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  useBreadcrumb([{ title: 'Kelola Pengguna', href: '/admin/user' }, { title: 'Detail Pengguna' }]);
-
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleteOpen, setDeleteOpen] = useState(false);
+
+  useBreadcrumb([
+    { title: 'Kelola Pengguna', href: '/admin/user' },
+    { title: user ? `Detail Pengguna - ${user.name}` : 'Detail Pengguna' },
+  ]);
 
   useEffect(() => {
     if (id) fetchUser(Number(id));

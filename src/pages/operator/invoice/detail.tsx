@@ -44,17 +44,17 @@ export default function OperatorInvoiceDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  useBreadcrumb([
+    { title: 'Kelola Tagihan', href: '/operator/invoice' },
+    { title: invoice ? `Detail Tagihan #${invoice.id}` : 'Detail Tagihan' },
+  ]);
+
   const { download, loading: downloadLoading } = useDownloadInvoice(
     operatorInvoiceService.downloadInvoice,
   );
   const { download: downloadReceipt, loading: receiptLoading } = useDownloadReceipt(
     operatorPaymentService.downloadReceipt,
   );
-
-  useBreadcrumb([
-    { title: 'Kelola Tagihan', href: '/operator/invoice' },
-    { title: 'Detail Tagihan' },
-  ]);
 
   useEffect(() => {
     const fetchInvoice = async () => {

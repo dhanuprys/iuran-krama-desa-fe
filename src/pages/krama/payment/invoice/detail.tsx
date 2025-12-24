@@ -31,17 +31,17 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function KramaPaymentInvoiceDetailPage() {
-  useBreadcrumb([
-    { title: 'Iuran' },
-    { title: 'Tagihan', href: '/payment/invoice' },
-    { title: 'Detail' },
-  ]);
-
   const { id: invoiceId } = useParams();
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useBreadcrumb([
+    { title: 'Iuran' },
+    { title: 'Tagihan', href: '/payment/invoice' },
+    { title: invoice ? `Detail Tagihan #${invoice.id}` : 'Detail Tagihan' },
+  ]);
 
   const { download, loading: downloadLoading } = useDownloadInvoice(
     kramaInvoiceService.downloadInvoice,
