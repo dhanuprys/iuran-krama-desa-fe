@@ -123,13 +123,13 @@ export function AdatAndAddressDetails({
             </FieldContent>
           </Field>
           <Field>
-            <FieldLabel>Nama Tempat Tinggal</FieldLabel>
+            <FieldLabel>Perumahan</FieldLabel>
             <FieldContent>
               <Input
                 name="residence_name"
                 value={formData.residence_name}
                 onChange={handleChange}
-                placeholder="Griya Asri"
+                placeholder="Nama Perumahan (Contoh: Griya Asri)"
               />
             </FieldContent>
           </Field>

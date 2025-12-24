@@ -315,7 +315,7 @@ export default function AdminResidentDetailPage() {
                     </div>
                     {resident.residence_name && (
                       <p className="text-muted-foreground mt-1 text-sm">
-                        Tempat: {resident.residence_name}
+                        Perumahan: {resident.residence_name}
                       </p>
                     )}
                   </div>

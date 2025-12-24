@@ -382,7 +382,9 @@ export default function KramaResidentDetailPage() {
                     <p className="text-muted-foreground mb-1 text-sm">Alamat Domisili</p>
                     <p className="font-medium">{resident.residential_address}</p>
                     {resident.residence_name && (
-                      <p className="text-muted-foreground text-sm">{resident.residence_name}</p>
+                      <p className="text-muted-foreground text-sm">
+                        Perumahan: {resident.residence_name}
+                      </p>
                     )}
                   </div>
                   <div>
