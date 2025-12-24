@@ -31,8 +31,6 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function KramaPaymentInvoiceDetailPage() {
-
-
   const { id: invoiceId } = useParams();
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState<Invoice | null>(null);

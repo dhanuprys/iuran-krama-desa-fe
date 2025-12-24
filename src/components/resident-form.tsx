@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AlertCircle, SaveIcon } from 'lucide-react';
 
 import type { Resident } from '@/types/entity';
+import type { FormValidationErrors } from '@/types/form';
 
 import residentService from '@/services/krama-resident.service';
 import residentStatusService from '@/services/resident-status.service';
@@ -36,7 +37,8 @@ export function ResidentForm({
 }: ResidentFormProps) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | Record<string, string[]> | null>(null);
+  const [generalError, setGeneralError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FormValidationErrors | null>(null);
   const [banjars, setBanjars] = useState<{ id: number; name: string }[]>([]);
   const [residentStatuses, setResidentStatuses] = useState<ResidentStatus[]>([]);
 
@@ -122,11 +124,13 @@ export function ResidentForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setGeneralError(null);
+    setFieldErrors(null);
 
     // Basic Validation
     if (!formData.nik || formData.nik.length !== 16) {
-      setError('NIK harus 16 digit.');
+      setFieldErrors({ nik: ['NIK harus 16 digit.'] });
+      setGeneralError('Mohon periksa input form anda.');
       setLoading(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -136,7 +140,8 @@ export function ResidentForm({
 
     if (isHead) {
       if (!formData.banjar_id) {
-        setError('Pilih Banjar terlebih dahulu.');
+        setFieldErrors({ banjar_id: ['Pilih Banjar terlebih dahulu.'] });
+        setGeneralError('Mohon periksa input form anda.');
         setLoading(false);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
@@ -168,9 +173,10 @@ export function ResidentForm({
       console.error(err);
       if (err?.response?.data?.error?.details) {
         // Set error as object for details
-        setError(err.response.data.error.details);
+        setFieldErrors(err.response.data.error.details);
+        setGeneralError('Terdapat kesalahan validasi. Mohon periksa input anda.');
       } else {
-        setError(
+        setGeneralError(
           err?.response?.data?.message || err?.message || 'Terjadi kesalahan saat menyimpan data.',
         );
       }
@@ -182,24 +188,12 @@ export function ResidentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 pb-20">
-      {error && (
+      {generalError && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription className="mt-2">
-            {/* Check if error is a string or an object with details */}
-            {typeof error === 'string' ? (
-              <p>{error}</p>
-            ) : (
-              <ul className="list-disc space-y-1 pl-5 text-sm">
-                {Object.entries(error).map(([key, messages]: any) => (
-                  <li key={key}>
-                    <span className="font-semibold capitalize">{key.replace(/_/g, ' ')}:</span>{' '}
-                    {messages[0]}
-                  </li>
-                ))}
-              </ul>
-            )}
+            <p>{generalError}</p>
           </AlertDescription>
         </Alert>
       )}
@@ -208,6 +202,7 @@ export function ResidentForm({
         formData={formData}
         handleChange={handleChange}
         handleSelectChange={handleSelectChange}
+        errors={fieldErrors}
       />
 
       {formData.family_status === 'HEAD_OF_FAMILY' && (
@@ -220,8 +215,13 @@ export function ResidentForm({
             residentStatuses={residentStatuses}
             location={location}
             setLocation={setLocation}
+            errors={fieldErrors}
           />
-          <SupportDocuments files={files} handleFileChange={handleFileChange} />
+          <SupportDocuments
+            files={files}
+            handleFileChange={handleFileChange}
+            errors={fieldErrors}
+          />
         </>
       )}
 

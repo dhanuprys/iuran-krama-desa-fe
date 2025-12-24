@@ -1,8 +1,10 @@
+import type { FormValidationErrors } from '@/types/form';
+
 import type { ResidentStatus } from '@/services/resident-status.service';
 
 import { MapPicker } from '@/components/map-picker';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Field, FieldContent, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -11,6 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+
+import { getFieldErrors } from '@/lib/utils';
 
 import type { ResidentFormData } from './types';
 
@@ -22,6 +26,7 @@ interface AdatAndAddressDetailsProps {
   residentStatuses: ResidentStatus[];
   location: { lat: number; lng: number } | null;
   setLocation: (loc: { lat: number; lng: number } | null) => void;
+  errors?: FormValidationErrors | null;
 }
 
 export function AdatAndAddressDetails({
@@ -32,6 +37,7 @@ export function AdatAndAddressDetails({
   residentStatuses,
   location,
   setLocation,
+  errors,
 }: AdatAndAddressDetailsProps) {
   return (
     <Card>
@@ -158,6 +164,7 @@ export function AdatAndAddressDetails({
                 ? `Lat: ${location.lat.toFixed(6)}, Lng: ${location.lng.toFixed(6)}`
                 : 'Belum memilih lokasi.'}
             </div>
+            <FieldError errors={getFieldErrors(errors, 'location')} />
           </FieldContent>
         </Field>
 
@@ -179,6 +186,7 @@ export function AdatAndAddressDetails({
             <FieldContent>
               <Input name="email" value={formData.email} onChange={handleChange} type="email" />
             </FieldContent>
+            <FieldError errors={getFieldErrors(errors, 'email')} />
           </Field>
         </FieldGroup>
       </CardContent>

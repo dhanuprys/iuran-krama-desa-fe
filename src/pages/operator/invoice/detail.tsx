@@ -56,8 +56,6 @@ export default function OperatorInvoiceDetailPage() {
     operatorPaymentService.downloadReceipt,
   );
 
-
-
   useEffect(() => {
     const fetchInvoice = async () => {
       if (!id) return;

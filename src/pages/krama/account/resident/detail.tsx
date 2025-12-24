@@ -53,8 +53,6 @@ L.Icon.Default.mergeOptions({
 });
 
 export default function KramaResidentDetailPage() {
-
-
   const navigate = useNavigate();
   const { id: residentId } = useParams();
   const [resident, setResident] = useState<Resident | null>(null);

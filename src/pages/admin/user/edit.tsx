@@ -35,8 +35,6 @@ export default function AdminUserEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [role, setRole] = useState('krama');

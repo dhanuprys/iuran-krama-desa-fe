@@ -32,8 +32,6 @@ import {
 } from '@/components/ui/table';
 
 export default function AdminFamilyDetailPage() {
-
-
   const { id: family_card_number } = useParams();
   const navigate = useNavigate();
   const [family, setFamily] = useState<Family | null>(null);
@@ -43,9 +41,7 @@ export default function AdminFamilyDetailPage() {
   useBreadcrumb([
     { title: 'Keluarga', href: '/admin/family' },
     {
-      title: family
-        ? `Detail Keluarga #${family.family_card_number}`
-        : 'Detail Keluarga',
+      title: family ? `Detail Keluarga #${family.family_card_number}` : 'Detail Keluarga',
     },
   ]);
 

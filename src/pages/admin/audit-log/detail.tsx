@@ -29,8 +29,6 @@ export default function AdminAuditLogDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-
-
   const [log, setLog] = useState<AuditLog | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -21,8 +21,6 @@ import { ResidentForm } from '@/components/resident-form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function OperatorResidentEditPage() {
-
-
   const { id } = useParams();
   const [resident, setResident] = useState<Resident | null>(null);
 

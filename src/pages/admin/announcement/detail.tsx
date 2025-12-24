@@ -22,8 +22,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AdminAnnouncementDetailPage() {
-
-
   const { id } = useParams();
   const navigate = useNavigate();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
@@ -33,9 +31,7 @@ export default function AdminAnnouncementDetailPage() {
   useBreadcrumb([
     { title: 'Kelola Pengumuman', href: '/admin/announcement' },
     {
-      title: announcement
-        ? `Detail Pengumuman - ${announcement.title}`
-        : 'Detail Pengumuman',
+      title: announcement ? `Detail Pengumuman - ${announcement.title}` : 'Detail Pengumuman',
     },
   ]);
 

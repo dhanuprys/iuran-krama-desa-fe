@@ -23,8 +23,6 @@ import { PaymentForm } from '@/components/payment-form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function OperatorPaymentEditPage() {
-
-
   const navigate = useNavigate();
   const { id } = useParams();
   const [payment, setPayment] = useState<Payment | null>(null);

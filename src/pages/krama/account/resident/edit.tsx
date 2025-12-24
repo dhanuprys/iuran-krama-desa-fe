@@ -24,8 +24,6 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function KramaAccountResidentEditPage() {
-
-
   const { id } = useParams();
   const navigate = useNavigate();
   const [resident, setResident] = useState<Resident | null>(null);

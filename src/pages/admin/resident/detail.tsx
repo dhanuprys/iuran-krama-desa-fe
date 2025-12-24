@@ -49,8 +49,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { formatCurrency } from '@/lib/utils';
 
 export default function AdminResidentDetailPage() {
-
-
   const { id } = useParams();
   const navigate = useNavigate();
   const [resident, setResident] = useState<Resident | null>(null);
@@ -408,7 +406,7 @@ export default function AdminResidentDetailPage() {
               <CardContent>
                 {location ? (
                   <div className="h-[400px] overflow-hidden rounded-lg border">
-                    <MapPicker value={location} onChange={() => { }} />
+                    <MapPicker value={location} onChange={() => {}} />
                   </div>
                 ) : (
                   <div className="bg-muted text-muted-foreground flex h-[200px] flex-col items-center justify-center rounded-lg border">
@@ -473,8 +471,8 @@ export default function AdminResidentDetailPage() {
                             <Badge
                               variant={
                                 invoice.payments &&
-                                  invoice.payments.length > 0 &&
-                                  invoice.payments[0].status === 'paid'
+                                invoice.payments.length > 0 &&
+                                invoice.payments[0].status === 'paid'
                                   ? 'default'
                                   : 'secondary'
                               }

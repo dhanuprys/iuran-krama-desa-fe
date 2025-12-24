@@ -31,8 +31,6 @@ export default function OperatorInvoiceEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-
-
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -26,8 +26,6 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 
 export default function AdminAnnouncementEditPage() {
-
-
   const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<AnnouncementFormData>({

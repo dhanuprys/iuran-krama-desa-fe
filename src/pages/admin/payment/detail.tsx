@@ -38,8 +38,6 @@ import { Separator } from '@/components/ui/separator';
 import { formatCurrency } from '@/lib/utils';
 
 export default function AdminPaymentDetailPage() {
-
-
   const { id } = useParams();
   const navigate = useNavigate();
   const [payment, setPayment] = useState<Payment | null>(null);

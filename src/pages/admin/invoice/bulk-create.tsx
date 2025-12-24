@@ -155,7 +155,7 @@ export default function AdminInvoiceBulkCreatePage() {
 
         <div className="relative grid items-start gap-6 md:grid-cols-3">
           {/* Parameter Section - Sticky on Desktop */}
-          <Card className="md:sticky md:top-6 h-fit md:col-span-1">
+          <Card className="h-fit md:sticky md:top-6 md:col-span-1">
             <CardHeader>
               <CardTitle>Parameter Tagihan</CardTitle>
               <CardDescription>Tentukan tanggal dan biaya tambahan.</CardDescription>
@@ -229,7 +229,7 @@ export default function AdminInvoiceBulkCreatePage() {
             </CardHeader>
             <CardContent className="flex-1">
               {!previewData ? (
-                <div className="text-muted-foreground flex h-[300px] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed bg-muted/50">
+                <div className="text-muted-foreground bg-muted/50 flex h-[300px] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed">
                   <Inbox className="h-10 w-10 opacity-50" />
                   <p className="font-medium">Belum ada preview data</p>
                   <p className="text-sm">Silakan isi parameter dan klik "Cek Preview"</p>
@@ -240,16 +240,16 @@ export default function AdminInvoiceBulkCreatePage() {
                   <div className="bg-primary/5 flex flex-wrap items-center justify-between gap-4 rounded-lg border p-4">
                     <div className="flex gap-8">
                       <div>
-                        <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                        <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                           Total KK
                         </p>
                         <p className="text-2xl font-bold">{previewData.total_residents}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                        <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                           Estimasi Total
                         </p>
-                        <p className="text-2xl font-bold text-primary">
+                        <p className="text-primary text-2xl font-bold">
                           {formatCurrency(previewData.total_amount_all)}
                         </p>
                       </div>
@@ -269,8 +269,9 @@ export default function AdminInvoiceBulkCreatePage() {
                       {previewData.items.map((item, index) => (
                         <div
                           key={item.resident_id}
-                          className={`flex flex-col justify-between gap-4 p-4 hover:bg-muted/50 sm:flex-row sm:items-center ${index !== previewData.items.length - 1 ? 'border-b' : ''
-                            }`}
+                          className={`hover:bg-muted/50 flex flex-col justify-between gap-4 p-4 sm:flex-row sm:items-center ${
+                            index !== previewData.items.length - 1 ? 'border-b' : ''
+                          }`}
                         >
                           <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-2">
@@ -279,7 +280,7 @@ export default function AdminInvoiceBulkCreatePage() {
                                 {item.banjar_name}
                               </Badge>
                             </div>
-                            <p className="text-sm text-muted-foreground">{item.resident_nik}</p>
+                            <p className="text-muted-foreground text-sm">{item.resident_nik}</p>
                           </div>
 
                           <div className="flex flex-col gap-x-6 gap-y-1 text-sm sm:flex-row sm:items-center">
@@ -288,18 +289,16 @@ export default function AdminInvoiceBulkCreatePage() {
                               <span>{formatCurrency(item.iuran_amount)}</span>
                             </div>
                             {(item.peturunan_amount > 0 || item.dedosan_amount > 0) && (
-                              <div className="flex gap-4 text-muted-foreground text-xs sm:text-sm">
+                              <div className="text-muted-foreground flex gap-4 text-xs sm:text-sm">
                                 {item.peturunan_amount > 0 && (
-                                  <span>
-                                    + {formatCurrency(item.peturunan_amount)} (Peturunan)
-                                  </span>
+                                  <span>+ {formatCurrency(item.peturunan_amount)} (Peturunan)</span>
                                 )}
                                 {item.dedosan_amount > 0 && (
                                   <span>+ {formatCurrency(item.dedosan_amount)} (Dedosan)</span>
                                 )}
                               </div>
                             )}
-                            <div className="font-bold min-w-[100px] text-right">
+                            <div className="min-w-[100px] text-right font-bold">
                               {formatCurrency(item.total_amount)}
                             </div>
                           </div>
@@ -318,8 +317,8 @@ export default function AdminInvoiceBulkCreatePage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Konfirmasi Pembuatan Tagihan</AlertDialogTitle>
               <AlertDialogDescription>
-                Anda akan membuat tagihan untuk <b>{previewData?.total_residents} Kepala Keluarga</b>{' '}
-                dengan total nominal{' '}
+                Anda akan membuat tagihan untuk{' '}
+                <b>{previewData?.total_residents} Kepala Keluarga</b> dengan total nominal{' '}
                 <b>{previewData && formatCurrency(previewData.total_amount_all)}</b>.
                 <br />
                 <br />

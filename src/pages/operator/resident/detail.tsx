@@ -38,8 +38,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency } from '@/lib/utils';
 
 export default function OperatorResidentDetailPage() {
-
-
   const { id } = useParams();
   const navigate = useNavigate();
   const [resident, setResident] = useState<Resident | null>(null);
@@ -335,7 +333,7 @@ export default function OperatorResidentDetailPage() {
               <CardContent>
                 {location ? (
                   <div className="h-[400px] overflow-hidden rounded-lg border">
-                    <MapPicker value={location} onChange={() => { }} />
+                    <MapPicker value={location} onChange={() => {}} />
                   </div>
                 ) : (
                   <div className="bg-muted text-muted-foreground flex h-[200px] flex-col items-center justify-center rounded-lg border">
@@ -400,8 +398,8 @@ export default function OperatorResidentDetailPage() {
                             <Badge
                               variant={
                                 invoice.payments &&
-                                  invoice.payments.length > 0 &&
-                                  invoice.payments[0].status === 'paid'
+                                invoice.payments.length > 0 &&
+                                invoice.payments[0].status === 'paid'
                                   ? 'default'
                                   : 'secondary'
                               }

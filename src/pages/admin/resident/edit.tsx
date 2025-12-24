@@ -19,8 +19,6 @@ import { ResidentForm } from '@/components/resident-form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function AdminResidentEditPage() {
-
-
   const { id } = useParams();
   const [resident, setResident] = useState<Resident | null>(null);
 

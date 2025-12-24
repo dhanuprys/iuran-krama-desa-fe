@@ -1,17 +1,23 @@
 import { UploadCloud } from 'lucide-react';
 
+import type { FormValidationErrors } from '@/types/form';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { FieldError } from '@/components/ui/field';
 import { Field, FieldContent, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+
+import { getFieldErrors } from '@/lib/utils';
 
 import type { ResidentFormFiles } from './types';
 
 interface SupportDocumentsProps {
   files: ResidentFormFiles;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  errors?: FormValidationErrors | null;
 }
 
-export function SupportDocuments({ files, handleFileChange }: SupportDocumentsProps) {
+export function SupportDocuments({ files, handleFileChange, errors }: SupportDocumentsProps) {
   return (
     <Card>
       <CardHeader>
@@ -35,6 +41,7 @@ export function SupportDocuments({ files, handleFileChange }: SupportDocumentsPr
                 </span>
               )}
             </div>
+            <FieldError errors={getFieldErrors(errors, 'resident_photo')} />
           </FieldContent>
         </Field>
         <Field>
@@ -48,6 +55,7 @@ export function SupportDocuments({ files, handleFileChange }: SupportDocumentsPr
                 </span>
               )}
             </div>
+            <FieldError errors={getFieldErrors(errors, 'photo_ktp')} />
           </FieldContent>
         </Field>
         <Field>
@@ -61,6 +69,7 @@ export function SupportDocuments({ files, handleFileChange }: SupportDocumentsPr
                 </span>
               )}
             </div>
+            <FieldError errors={getFieldErrors(errors, 'photo_house')} />
           </FieldContent>
         </Field>
       </CardContent>

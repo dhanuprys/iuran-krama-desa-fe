@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { Constants } from '@/config/constants';
 
+import { useAppStore } from '@/stores/app.store';
 import useAuth from '@/stores/auth.store';
 
 import LayoutSkeleton from '@/components/layout-skeleton';
@@ -14,8 +15,6 @@ import AuthenticatedOnly from '@/layouts/middleware/authenticated-only';
 import OperatorLayout from '@/layouts/operator-layout';
 
 import HomePage from '@/pages/home';
-
-import { useAppStore } from '@/stores/app.store';
 
 import * as Pages from '@/pages';
 

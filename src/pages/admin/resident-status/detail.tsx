@@ -33,8 +33,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/utils';
 
 export default function AdminResidentStatusDetailPage() {
-
-
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [status, setStatus] = useState<ResidentStatus | null>(null);
