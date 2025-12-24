@@ -24,11 +24,17 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function KramaAccountResidentEditPage() {
-  useBreadcrumb([{ title: 'Akun' }, { title: 'Penduduk' }, { title: 'Ubah Data Penduduk' }]);
+
 
   const { id } = useParams();
   const navigate = useNavigate();
   const [resident, setResident] = useState<Resident | null>(null);
+
+  useBreadcrumb([
+    { title: 'Akun' },
+    { title: 'Penduduk' },
+    { title: resident ? `Ubah Data Penduduk - ${resident.name}` : 'Ubah Data Penduduk' },
+  ]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

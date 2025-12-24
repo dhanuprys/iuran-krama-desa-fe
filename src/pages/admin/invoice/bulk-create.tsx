@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { CheckCircle, Loader2, Search, TriangleAlert } from 'lucide-react';
+import { CheckCircle, Inbox, Loader2, Search, TriangleAlert } from 'lucide-react';
 
 import adminInvoiceService from '@/services/admin-invoice.service';
 
@@ -17,6 +17,16 @@ import {
 } from '@/components/layout-content';
 import { PageHead } from '@/components/page-head';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,6 +56,7 @@ export default function AdminInvoiceBulkCreatePage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [previewData, setPreviewData] = useState<{
     items: PreviewItem[];
     total_residents: number;
@@ -99,6 +110,7 @@ export default function AdminInvoiceBulkCreatePage() {
     if (!previewData || previewData.items.length === 0) return;
     setLoading(true);
     setError(null);
+    setShowConfirm(false);
 
     try {
       const response = await adminInvoiceService.createBulk({
@@ -141,8 +153,9 @@ export default function AdminInvoiceBulkCreatePage() {
           </Alert>
         )}
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card className="h-fit md:col-span-1">
+        <div className="relative grid items-start gap-6 md:grid-cols-3">
+          {/* Parameter Section - Sticky on Desktop */}
+          <Card className="md:sticky md:top-6 h-fit md:col-span-1">
             <CardHeader>
               <CardTitle>Parameter Tagihan</CardTitle>
               <CardDescription>Tentukan tanggal dan biaya tambahan.</CardDescription>
@@ -205,7 +218,8 @@ export default function AdminInvoiceBulkCreatePage() {
             </CardContent>
           </Card>
 
-          <Card className="md:col-span-2">
+          {/* Preview Section */}
+          <Card className="flex h-full flex-col md:col-span-2">
             <CardHeader>
               <CardTitle>Preview Penerima Tagihan</CardTitle>
               <CardDescription>
@@ -213,83 +227,115 @@ export default function AdminInvoiceBulkCreatePage() {
                 bulan ini.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1">
               {!previewData ? (
-                <div className="text-muted-foreground flex h-[300px] items-center justify-center rounded-lg border-2 border-dashed">
-                  Silakan isi parameter dan klik "Cek Preview"
+                <div className="text-muted-foreground flex h-[300px] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed bg-muted/50">
+                  <Inbox className="h-10 w-10 opacity-50" />
+                  <p className="font-medium">Belum ada preview data</p>
+                  <p className="text-sm">Silakan isi parameter dan klik "Cek Preview"</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="bg-primary/10 flex flex-wrap items-center justify-between gap-4 rounded-lg p-4">
-                    <div>
-                      <p className="text-muted-foreground text-sm font-medium">Total Penduduk</p>
-                      <p className="text-2xl font-bold">{previewData.total_residents}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground text-sm font-medium">
-                        Total Estimasi Tagihan
-                      </p>
-                      <p className="text-2xl font-bold">
-                        {formatCurrency(previewData.total_amount_all)}
-                      </p>
+                  {/* Sticky Header within Preview Card could be nice, but simple top block is fine too */}
+                  <div className="bg-primary/5 flex flex-wrap items-center justify-between gap-4 rounded-lg border p-4">
+                    <div className="flex gap-8">
+                      <div>
+                        <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                          Total KK
+                        </p>
+                        <p className="text-2xl font-bold">{previewData.total_residents}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                          Estimasi Total
+                        </p>
+                        <p className="text-2xl font-bold text-primary">
+                          {formatCurrency(previewData.total_amount_all)}
+                        </p>
+                      </div>
                     </div>
                     <Button
-                      onClick={handleSubmit}
+                      onClick={() => setShowConfirm(true)}
                       disabled={loading || previewData.total_residents === 0}
+                      size="lg"
                     >
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      <CheckCircle className="mr-2 h-4 w-4" /> Proses Buat Tagihan
+                      <CheckCircle className="mr-2 h-4 w-4" /> Proses Tagihan
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {previewData.items.map((item) => (
-                      <div
-                        key={item.resident_id}
-                        className="hover:bg-muted/50 flex flex-col justify-between rounded-lg border p-4 shadow-sm"
-                      >
-                        <div className="mb-4">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <p className="font-semibold">{item.resident_name}</p>
-                              <p className="text-muted-foreground text-sm">{item.resident_nik}</p>
+                  {/* Scrollable List Container */}
+                  <div className="rounded-md border">
+                    <div className="max-h-[60vh] overflow-y-auto">
+                      {previewData.items.map((item, index) => (
+                        <div
+                          key={item.resident_id}
+                          className={`flex flex-col justify-between gap-4 p-4 hover:bg-muted/50 sm:flex-row sm:items-center ${index !== previewData.items.length - 1 ? 'border-b' : ''
+                            }`}
+                        >
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{item.resident_name}</p>
+                              <Badge variant="outline" className="text-[10px] font-normal">
+                                {item.banjar_name}
+                              </Badge>
                             </div>
-                            <Badge variant="outline" className="text-xs">
-                              {item.banjar_name}
-                            </Badge>
+                            <p className="text-sm text-muted-foreground">{item.resident_nik}</p>
                           </div>
-                        </div>
 
-                        <div className="space-y-1 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Iuran</span>
-                            <span>{formatCurrency(item.iuran_amount)}</span>
-                          </div>
-                          {item.peturunan_amount > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Peturunan</span>
-                              <span>{formatCurrency(item.peturunan_amount)}</span>
+                          <div className="flex flex-col gap-x-6 gap-y-1 text-sm sm:flex-row sm:items-center">
+                            <div className="flex justify-between gap-2 sm:block">
+                              <span className="text-muted-foreground sm:hidden">Iuran:</span>
+                              <span>{formatCurrency(item.iuran_amount)}</span>
                             </div>
-                          )}
-                          {item.dedosan_amount > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Dedosan</span>
-                              <span>{formatCurrency(item.dedosan_amount)}</span>
+                            {(item.peturunan_amount > 0 || item.dedosan_amount > 0) && (
+                              <div className="flex gap-4 text-muted-foreground text-xs sm:text-sm">
+                                {item.peturunan_amount > 0 && (
+                                  <span>
+                                    + {formatCurrency(item.peturunan_amount)} (Peturunan)
+                                  </span>
+                                )}
+                                {item.dedosan_amount > 0 && (
+                                  <span>+ {formatCurrency(item.dedosan_amount)} (Dedosan)</span>
+                                )}
+                              </div>
+                            )}
+                            <div className="font-bold min-w-[100px] text-right">
+                              {formatCurrency(item.total_amount)}
                             </div>
-                          )}
-                          <div className="flex justify-between border-t pt-2 font-bold">
-                            <span>Total</span>
-                            <span>{formatCurrency(item.total_amount)}</span>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
+
+        <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Konfirmasi Pembuatan Tagihan</AlertDialogTitle>
+              <AlertDialogDescription>
+                Anda akan membuat tagihan untuk <b>{previewData?.total_residents} Kepala Keluarga</b>{' '}
+                dengan total nominal{' '}
+                <b>{previewData && formatCurrency(previewData.total_amount_all)}</b>.
+                <br />
+                <br />
+                Pastikan data sudah benar. Proses ini tidak dapat dibatalkan secara otomatis (harus
+                hapus manual satu per satu jika salah).
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction onClick={handleSubmit} disabled={loading}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Ya, Proses Sekarang
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </LayoutContentBody>
     </LayoutContent>
   );

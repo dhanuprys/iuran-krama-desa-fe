@@ -29,15 +29,17 @@ export default function AdminAuditLogDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  useBreadcrumb([
-    { title: 'Sistem' },
-    { title: 'Audit & Log Aktivitas', href: '/admin/audit-log' },
-    { title: 'Detail Log' },
-  ]);
+
 
   const [log, setLog] = useState<AuditLog | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useBreadcrumb([
+    { title: 'Sistem' },
+    { title: 'Audit & Log Aktivitas', href: '/admin/audit-log' },
+    { title: log ? `Detail Log #${log.id}` : 'Detail Log' },
+  ]);
 
   useEffect(() => {
     if (id) fetchLog(parseInt(id));

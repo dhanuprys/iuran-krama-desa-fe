@@ -31,7 +31,7 @@ export default function AdminInvoiceEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  useBreadcrumb([{ title: 'Kelola Tagihan', href: '/admin/invoice' }, { title: 'Edit Tagihan' }]);
+
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -45,6 +45,11 @@ export default function AdminInvoiceEditPage() {
     dedosan_amount: 0,
     iuran_amount: 0,
   });
+
+  useBreadcrumb([
+    { title: 'Kelola Tagihan', href: '/admin/invoice' },
+    { title: id ? `Edit Tagihan #${id}` : 'Edit Tagihan' },
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {

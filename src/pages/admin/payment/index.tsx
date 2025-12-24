@@ -44,7 +44,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/utils';
 
 export default function AdminPaymentPage() {
-  useBreadcrumb([{ title: 'Admin' }, { title: 'Kelola Pembayaran' }]);
+  useBreadcrumb([{ title: 'Kelola Pembayaran' }]);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [payments, setPayments] = useState<Payment[]>([]);

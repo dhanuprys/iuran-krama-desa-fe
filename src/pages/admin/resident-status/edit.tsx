@@ -24,10 +24,7 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminResidentStatusEditPage() {
-  useBreadcrumb([
-    { title: 'Status Warga', href: '/admin/resident-status' },
-    { title: 'Edit Status' },
-  ]);
+
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -38,6 +35,11 @@ export default function AdminResidentStatusEditPage() {
     name: '',
     contribution_amount: '',
   });
+
+  useBreadcrumb([
+    { title: 'Status Warga', href: '/admin/resident-status' },
+    { title: formData.name ? `Edit Status - ${formData.name}` : 'Edit Status' },
+  ]);
 
   useEffect(() => {
     if (id) {

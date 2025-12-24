@@ -53,17 +53,21 @@ L.Icon.Default.mergeOptions({
 });
 
 export default function KramaResidentDetailPage() {
-  useBreadcrumb([
-    { title: 'Akun' },
-    { title: 'Penduduk', href: '/account/resident' },
-    { title: 'Detail Penduduk' },
-  ]);
+
 
   const navigate = useNavigate();
   const { id: residentId } = useParams();
   const [resident, setResident] = useState<Resident | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useBreadcrumb([
+    { title: 'Akun' },
+    { title: 'Penduduk', href: '/account/resident' },
+    {
+      title: resident ? `Detail Penduduk - ${resident.name}` : 'Detail Penduduk',
+    },
+  ]);
 
   useEffect(() => {
     if (residentId) {
@@ -378,7 +382,9 @@ export default function KramaResidentDetailPage() {
                     <p className="text-muted-foreground mb-1 text-sm">Alamat Domisili</p>
                     <p className="font-medium">{resident.residential_address}</p>
                     {resident.residence_name && (
-                      <p className="text-muted-foreground text-sm">{resident.residence_name}</p>
+                      <p className="text-muted-foreground text-sm">
+                        Perumahan: {resident.residence_name}
+                      </p>
                     )}
                   </div>
                   <div>

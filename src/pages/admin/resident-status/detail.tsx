@@ -33,10 +33,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/lib/utils';
 
 export default function AdminResidentStatusDetailPage() {
-  useBreadcrumb([
-    { title: 'Status Warga', href: '/admin/resident-status' },
-    { title: 'Detail Status' },
-  ]);
+
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -44,6 +41,11 @@ export default function AdminResidentStatusDetailPage() {
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  useBreadcrumb([
+    { title: 'Status Warga', href: '/admin/resident-status' },
+    { title: status ? `Detail Status - ${status.name}` : 'Detail Status' },
+  ]);
 
   useEffect(() => {
     if (id) {

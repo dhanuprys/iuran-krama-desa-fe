@@ -22,16 +22,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AdminAnnouncementDetailPage() {
-  useBreadcrumb([
-    { title: 'Kelola Pengumuman', href: '/admin/announcement' },
-    { title: 'Detail Pengumuman' },
-  ]);
+
 
   const { id } = useParams();
   const navigate = useNavigate();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useBreadcrumb([
+    { title: 'Kelola Pengumuman', href: '/admin/announcement' },
+    {
+      title: announcement
+        ? `Detail Pengumuman - ${announcement.title}`
+        : 'Detail Pengumuman',
+    },
+  ]);
 
   useEffect(() => {
     if (id) {
