@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
 
 import operatorPaymentService from '@/services/operator-payment.service';
 
@@ -26,11 +29,29 @@ export default function OperatorPaymentCreatePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const invoiceId = searchParams.get('invoice_id') || undefined;
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
 
   const handleSubmit = async (data: any) => {
-    await operatorPaymentService.createPayment(data);
-    toast.success('Pembayaran berhasil dicatat.');
-    navigate('/operator/payment');
+    setErrors(null);
+    try {
+      const response = await operatorPaymentService.createPayment(data);
+      if (response.success) {
+        toast.success('Pembayaran berhasil dicatat.');
+        navigate('/operator/payment');
+      } else {
+        toast.error(response.error?.message || 'Gagal mencatat pembayaran.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal mencatat pembayaran. Mohon periksa input form.');
+      } else {
+        const message =
+          err.response?.data?.message || err.message || 'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
+    }
   };
 
   return (
@@ -46,7 +67,12 @@ export default function OperatorPaymentCreatePage() {
         }
       />
       <LayoutContentBody>
-        <PaymentForm onSubmit={handleSubmit} invoiceId={invoiceId} baseApiUrl="/operator" />
+        <PaymentForm
+          onSubmit={handleSubmit}
+          invoiceId={invoiceId}
+          baseApiUrl="/operator"
+          serverErrors={errors}
+        />
       </LayoutContentBody>
     </LayoutContent>
   );

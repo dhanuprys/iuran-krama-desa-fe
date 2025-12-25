@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { Loader2, Save } from 'lucide-react';
+import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
 
 import adminAnnouncementService, {
   type AnnouncementFormData,
@@ -17,13 +20,15 @@ import {
   LayoutContentSubHead,
 } from '@/components/layout-content';
 import { PageHead } from '@/components/page-head';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+
+import { getFieldErrors } from '@/lib/utils';
 
 export default function AdminAnnouncementEditPage() {
   const { id } = useParams();
@@ -40,7 +45,7 @@ export default function AdminAnnouncementEditPage() {
   ]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -58,10 +63,10 @@ export default function AdminAnnouncementEditPage() {
           is_active: response.data.is_active,
         });
       } else {
-        setError('Data pengumuman tidak ditemukan.');
+        toast.error('Data pengumuman tidak ditemukan.');
       }
     } catch (err) {
-      setError('Gagal memuat data pengumuman.');
+      toast.error('Gagal memuat data pengumuman.');
     } finally {
       setInitialLoading(false);
     }
@@ -70,19 +75,27 @@ export default function AdminAnnouncementEditPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setErrors(null);
 
     if (!id) return;
 
     try {
       const response = await adminAnnouncementService.updateAnnouncement(parseInt(id), formData);
       if (response.success) {
+        toast.success('Pengumuman berhasil diperbarui.');
         navigate('/admin/announcement');
       } else {
-        setError(response.error?.message || 'Gagal memperbarui pengumuman.');
+        toast.error(response.error?.message || 'Gagal memperbarui pengumuman.');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.');
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal memperbarui pengumuman. Mohon periksa input form.');
+      } else {
+        const message = err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -113,13 +126,6 @@ export default function AdminAnnouncementEditPage() {
         <form onSubmit={handleSubmit}>
           <Card>
             <CardContent className="space-y-4 pt-6">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
               <div className="space-y-2">
                 <Label htmlFor="title">Judul</Label>
                 <Input
@@ -130,6 +136,7 @@ export default function AdminAnnouncementEditPage() {
                   placeholder="Judul pengumuman..."
                   disabled={loading}
                 />
+                <FieldError errors={getFieldErrors(errors, 'title')} />
               </div>
 
               <div className="space-y-2">
@@ -143,6 +150,7 @@ export default function AdminAnnouncementEditPage() {
                   rows={5}
                   disabled={loading}
                 />
+                <FieldError errors={getFieldErrors(errors, 'content')} />
               </div>
 
               <div className="flex items-center space-x-2">

@@ -4,6 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import type { FormValidationErrors } from '@/types/form';
+
 import adminUserService from '@/services/admin-user.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
@@ -19,6 +21,7 @@ import {
 import { PageHead } from '@/components/page-head';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -31,6 +34,8 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 
+import { getFieldErrors } from '@/lib/utils';
+
 export default function AdminUserEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -40,6 +45,7 @@ export default function AdminUserEditPage() {
   const [role, setRole] = useState('krama');
   const [canCreateResident, setCanCreateResident] = useState(false);
   const [defaultValues, setDefaultValues] = useState<any>({});
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
 
   useBreadcrumb([
     { title: 'Kelola Pengguna', href: '/admin/user' },
@@ -70,6 +76,7 @@ export default function AdminUserEditPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSaving(true);
+    setErrors(null);
     const formData = new FormData(e.currentTarget);
 
     const data: any = {
@@ -91,8 +98,13 @@ export default function AdminUserEditPage() {
       navigate('/admin/user');
     } catch (error: any) {
       console.error(error);
-      const message = error.response?.data?.message || 'Gagal memperbarui pengguna.';
-      toast.error(message);
+      if (error.response?.data?.error?.details) {
+        setErrors(error.response.data.error.details);
+        toast.error('Gagal memperbarui pengguna. Mohon periksa input form.');
+      } else {
+        const message = error.response?.data?.message || 'Gagal memperbarui pengguna.';
+        toast.error(message);
+      }
     } finally {
       setSaving(false);
     }
@@ -130,6 +142,7 @@ export default function AdminUserEditPage() {
                     placeholder="Masukan nama lengkap"
                     required
                   />
+                  <FieldError errors={getFieldErrors(errors, 'name')} />
                 </div>
 
                 <div className="grid gap-2">
@@ -141,6 +154,7 @@ export default function AdminUserEditPage() {
                     placeholder="Masukan username"
                     required
                   />
+                  <FieldError errors={getFieldErrors(errors, 'username')} />
                 </div>
 
                 <div className="grid gap-2">
@@ -153,6 +167,7 @@ export default function AdminUserEditPage() {
                     placeholder="Masukan email"
                     required
                   />
+                  <FieldError errors={getFieldErrors(errors, 'email')} />
                 </div>
 
                 <div className="grid gap-2">
@@ -164,6 +179,7 @@ export default function AdminUserEditPage() {
                     placeholder="Kosongkan jika tidak ingin mengubah password"
                     minLength={8}
                   />
+                  <FieldError errors={getFieldErrors(errors, 'password')} />
                 </div>
 
                 <div className="grid gap-2">
@@ -174,9 +190,11 @@ export default function AdminUserEditPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="krama">Krama (Penduduk)</SelectItem>
+                      <SelectItem value="operator">Operator</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FieldError errors={getFieldErrors(errors, 'role')} />
                 </div>
 
                 <div className="flex items-center justify-between rounded-lg border p-4">

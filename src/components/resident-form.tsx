@@ -25,6 +25,7 @@ interface ResidentFormProps {
   cancelPath?: string;
   successPath?: string;
   submitLabel?: string;
+  serverErrors?: FormValidationErrors | null;
 }
 
 export function ResidentForm({
@@ -34,6 +35,7 @@ export function ResidentForm({
   cancelPath = '/account/resident',
   successPath = '/account/resident',
   submitLabel,
+  serverErrors,
 }: ResidentFormProps) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -202,7 +204,7 @@ export function ResidentForm({
         formData={formData}
         handleChange={handleChange}
         handleSelectChange={handleSelectChange}
-        errors={fieldErrors}
+        errors={serverErrors || fieldErrors}
       />
 
       {formData.family_status === 'HEAD_OF_FAMILY' && (
@@ -215,12 +217,12 @@ export function ResidentForm({
             residentStatuses={residentStatuses}
             location={location}
             setLocation={setLocation}
-            errors={fieldErrors}
+            errors={serverErrors || fieldErrors}
           />
           <SupportDocuments
             files={files}
             handleFileChange={handleFileChange}
-            errors={fieldErrors}
+            errors={serverErrors || fieldErrors}
           />
         </>
       )}

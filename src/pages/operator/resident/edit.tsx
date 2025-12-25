@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import type { Resident } from '@/types/entity';
+import type { FormValidationErrors } from '@/types/form';
 
 import operatorResidentService from '@/services/operator-resident.service';
 
@@ -23,6 +25,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 export default function OperatorResidentEditPage() {
   const { id } = useParams();
   const [resident, setResident] = useState<Resident | null>(null);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
 
   useBreadcrumb([
     { title: 'Kelola Penduduk', href: '/operator/resident' },
@@ -54,7 +57,26 @@ export default function OperatorResidentEditPage() {
 
   const handleSubmit = async (formData: FormData) => {
     if (id) {
-      await operatorResidentService.update(parseInt(id), formData);
+      setErrors(null);
+      try {
+        const response = await operatorResidentService.update(parseInt(id), formData);
+        if (response.success) {
+          toast.success('Data penduduk berhasil diperbarui.');
+        } else {
+          toast.error(response.message || 'Gagal memperbarui penduduk.');
+        }
+      } catch (err: any) {
+        console.error(err);
+        if (err.response?.data?.error?.details) {
+          setErrors(err.response.data.error.details);
+          toast.error('Gagal memperbarui penduduk. Mohon periksa input form.');
+        } else {
+          const message =
+            err.response?.data?.message || err.message || 'Terjadi kesalahan saat menyimpan data.';
+          toast.error(message);
+        }
+        throw err;
+      }
     }
   };
 
@@ -97,6 +119,7 @@ export default function OperatorResidentEditPage() {
           isEditing={true}
           cancelPath="/operator/resident"
           successPath="/operator/resident"
+          serverErrors={errors}
         />
       </LayoutContentBody>
     </LayoutContent>

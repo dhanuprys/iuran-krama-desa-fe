@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Loader2, Save } from 'lucide-react';
+import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
 
 import adminBanjarService from '@/services/admin-banjar.service';
 
@@ -16,19 +19,21 @@ import {
   LayoutContentSubHead,
 } from '@/components/layout-content';
 import { PageHead } from '@/components/page-head';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+
+import { getFieldErrors } from '@/lib/utils';
 
 export default function AdminBanjarCreatePage() {
   useBreadcrumb([{ title: 'Kelola Banjar', href: '/admin/banjar' }, { title: 'Tambah Banjar' }]);
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -42,19 +47,26 @@ export default function AdminBanjarCreatePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setErrors(null);
 
     try {
       const response = await adminBanjarService.createBanjar(formData);
       if (response.success) {
+        toast.success('Banjar berhasil dibuat.');
         navigate('/admin/banjar');
       } else {
-        setError(response.error?.message || 'Gagal membuat banjar.');
+        toast.error(response.error?.message || 'Gagal membuat banjar.');
       }
     } catch (err: any) {
-      setError(
-        err?.response?.data?.message || err?.message || 'Terjadi kesalahan saat menyimpan data.',
-      );
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal membuat banjar. Mohon periksa input form.');
+      } else {
+        const message =
+          err.response?.data?.message || err.message || 'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -73,12 +85,6 @@ export default function AdminBanjarCreatePage() {
         }
       />
       <LayoutContentBody>
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
         <form onSubmit={handleSubmit}>
           <Card>
             <CardHeader>
@@ -98,6 +104,7 @@ export default function AdminBanjarCreatePage() {
                   onChange={handleChange}
                   required
                 />
+                <FieldError errors={getFieldErrors(errors, 'name')} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address">Alamat</Label>
@@ -108,6 +115,7 @@ export default function AdminBanjarCreatePage() {
                   value={formData.address}
                   onChange={handleChange}
                 />
+                <FieldError errors={getFieldErrors(errors, 'address')} />
               </div>
             </CardContent>
           </Card>

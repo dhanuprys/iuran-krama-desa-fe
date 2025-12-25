@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { Save } from 'lucide-react';
+import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
 
 import residentStatusService from '@/services/resident-status.service';
 
@@ -19,15 +22,19 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CurrencyInput } from '@/components/ui/currency-input';
+import { FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+
+import { getFieldErrors } from '@/lib/utils';
 
 export default function AdminResidentStatusEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -55,9 +62,11 @@ export default function AdminResidentStatusEditPage() {
         });
       } else {
         setError(response.message || 'Gagal mengambil data status.');
+        toast.error('Gagal mengambil data status.');
       }
     } catch (err) {
       setError('Gagal mengambil data status.');
+      toast.error('Gagal mengambil data status.');
     } finally {
       setFetching(false);
     }
@@ -71,7 +80,7 @@ export default function AdminResidentStatusEditPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setErrors(null);
 
     try {
       const response = await residentStatusService.update(Number(id), {
@@ -80,14 +89,21 @@ export default function AdminResidentStatusEditPage() {
       });
 
       if (response.success) {
+        toast.success('Status warga berhasil diperbarui.');
         navigate('/admin/resident-status');
       } else {
-        setError(response.message || 'Gagal memperbarui status warga.');
+        toast.error(response.message || 'Gagal memperbarui status warga.');
       }
     } catch (err: any) {
-      setError(
-        err?.response?.data?.message || err?.message || 'Terjadi kesalahan saat menyimpan data.',
-      );
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal memperbarui status warga. Mohon periksa input form.');
+      } else {
+        const message =
+          err.response?.data?.message || err.message || 'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -161,6 +177,7 @@ export default function AdminResidentStatusEditPage() {
                   onChange={handleChange}
                   required
                 />
+                <FieldError errors={getFieldErrors(errors, 'name')} />
               </div>
 
               <div className="space-y-2">
@@ -175,6 +192,7 @@ export default function AdminResidentStatusEditPage() {
                   }
                   required
                 />
+                <FieldError errors={getFieldErrors(errors, 'contribution_amount')} />
               </div>
 
               <div className="flex justify-end space-x-2">

@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import type { Payment } from '@/types/entity';
+import type { FormValidationErrors } from '@/types/form';
 
 import adminPaymentService from '@/services/admin-payment.service';
 
@@ -26,6 +27,7 @@ export default function AdminPaymentEditPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [payment, setPayment] = useState<Payment | null>(null);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
 
   useBreadcrumb([
     { title: 'Kelola Pembayaran', href: '/admin/payment' },
@@ -55,13 +57,29 @@ export default function AdminPaymentEditPage() {
 
   const handleSubmit = async (data: any) => {
     if (!payment) return;
+    setErrors(null);
 
     // Remove invariant fields if necessary or api handles it.
     // Validation keeps invoice_id but it shouldn't change usually unless logic allows.
-
-    await adminPaymentService.updatePayment(payment.id, data);
-    toast.success('Pembayaran berhasil diperbarui.');
-    navigate(`/admin/payment/${payment.id}`);
+    try {
+      const response = await adminPaymentService.updatePayment(payment.id, data);
+      if (response.success) {
+        toast.success('Pembayaran berhasil diperbarui.');
+        navigate(`/admin/payment/${payment.id}`);
+      } else {
+        toast.error(response.error?.message || 'Gagal memperbarui pembayaran.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal memperbarui pembayaran. Mohon periksa input form.');
+      } else {
+        const message =
+          err.response?.data?.message || err.message || 'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
+    }
   };
 
   if (loading) {
@@ -106,7 +124,13 @@ export default function AdminPaymentEditPage() {
         }
       />
       <LayoutContentBody>
-        <PaymentForm onSubmit={handleSubmit} initialData={payment} isEditing baseApiUrl="/admin" />
+        <PaymentForm
+          onSubmit={handleSubmit}
+          initialData={payment}
+          isEditing
+          baseApiUrl="/admin"
+          serverErrors={errors}
+        />
       </LayoutContentBody>
     </LayoutContent>
   );

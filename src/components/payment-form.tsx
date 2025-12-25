@@ -7,6 +7,7 @@ import { AlertCircle, Check, Loader2, SaveIcon, Search } from 'lucide-react';
 import { z } from 'zod';
 
 import type { Invoice, Payment } from '@/types/entity';
+import type { FormValidationErrors } from '@/types/form';
 import type { HttpResponse, PaginatedResponse } from '@/types/http';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -39,7 +40,7 @@ import {
 } from '@/components/ui/table';
 
 import { apiClient } from '@/lib/api';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getFieldErrors } from '@/lib/utils';
 
 const paymentSchema = z.object({
   invoice_id: z.string().min(1, 'Invoice wajib dipilih'),
@@ -57,6 +58,7 @@ interface PaymentFormProps {
   onSubmit: (data: PaymentFormValues) => Promise<void>;
   isEditing?: boolean;
   baseApiUrl: string;
+  serverErrors?: FormValidationErrors | null;
 }
 
 export function PaymentForm({
@@ -65,6 +67,7 @@ export function PaymentForm({
   onSubmit,
   isEditing = false,
   baseApiUrl,
+  serverErrors,
 }: PaymentFormProps) {
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState<Invoice | null>(initialData?.invoice || null);
@@ -93,7 +96,6 @@ export function PaymentForm({
     control,
     handleSubmit,
     setValue,
-    setError,
     formState: { errors, isSubmitting },
   } = form;
 
@@ -170,36 +172,15 @@ export function PaymentForm({
     setSearchError(null);
   };
 
-  const onFormSubmit = async (data: PaymentFormValues) => {
-    try {
-      await onSubmit(data);
-    } catch (err: any) {
-      console.error(err);
-      if (err?.response?.data?.error?.details) {
-        const details = err.response.data.error.details;
-        Object.entries(details).forEach(([key, messages]: [string, any]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            setError(key as any, { type: 'server', message: messages[0] });
-          }
-        });
-      } else {
-        setError('root', {
-          type: 'server',
-          message: err?.response?.data?.message || err?.message || 'Terjadi kesalahan.',
-        });
-      }
-    }
-  };
-
   const { totalPaid, remaining } = invoice
     ? {
-        totalPaid:
-          invoice.payments?.reduce(
-            (sum, p) => sum + (typeof p.amount === 'string' ? parseFloat(p.amount) : p.amount),
-            0,
-          ) || 0,
-        remaining: calculateRemaining(invoice),
-      }
+      totalPaid:
+        invoice.payments?.reduce(
+          (sum, p) => sum + (typeof p.amount === 'string' ? parseFloat(p.amount) : p.amount),
+          0,
+        ) || 0,
+      remaining: calculateRemaining(invoice),
+    }
     : { totalPaid: 0, remaining: 0 };
 
   return (
@@ -278,9 +259,8 @@ export function PaymentForm({
                     <div>
                       <div className="text-muted-foreground">Status Pembayaran</div>
                       <div
-                        className={`font-medium ${
-                          remaining <= 0 ? 'text-green-600' : 'text-orange-600'
-                        }`}
+                        className={`font-medium ${remaining <= 0 ? 'text-green-600' : 'text-orange-600'
+                          }`}
                       >
                         {remaining <= 0 ? 'Lunas' : 'Belum Lunas'}
                       </div>
@@ -317,7 +297,7 @@ export function PaymentForm({
         </div>
 
         <div className="md:col-span-1">
-          <form onSubmit={handleSubmit((data) => onFormSubmit(data))} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {errors.root && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -332,6 +312,7 @@ export function PaymentForm({
               </CardHeader>
               <CardContent className="space-y-4">
                 <input type="hidden" {...form.register('invoice_id')} />
+                <FieldError errors={getFieldErrors(serverErrors, 'invoice_id')} />
                 {errors.invoice_id && (
                   <p className="text-destructive text-xs">{errors.invoice_id.message}</p>
                 )}
@@ -358,7 +339,12 @@ export function PaymentForm({
                           Sisa Tagihan: {invoice ? formatCurrency(remaining) : '-'}
                         </p>
                       </FieldContent>
-                      <FieldError errors={[{ message: errors.amount?.message }]} />
+                      <FieldError
+                        errors={[
+                          ...(errors.amount?.message ? [{ message: errors.amount.message }] : []),
+                          ...(getFieldErrors(serverErrors, 'amount') || []),
+                        ]}
+                      />
                     </Field>
                   )}
                 />
@@ -374,7 +360,12 @@ export function PaymentForm({
                       <FieldContent>
                         <Input type="date" {...field} required />
                       </FieldContent>
-                      <FieldError errors={[{ message: errors.date?.message }]} />
+                      <FieldError
+                        errors={[
+                          ...(errors.date?.message ? [{ message: errors.date.message }] : []),
+                          ...(getFieldErrors(serverErrors, 'date') || []),
+                        ]}
+                      />
                     </Field>
                   )}
                 />
@@ -398,7 +389,12 @@ export function PaymentForm({
                           </SelectContent>
                         </Select>
                       </FieldContent>
-                      <FieldError errors={[{ message: errors.method?.message }]} />
+                      <FieldError
+                        errors={[
+                          ...(errors.method?.message ? [{ message: errors.method.message }] : []),
+                          ...(getFieldErrors(serverErrors, 'method') || []),
+                        ]}
+                      />
                     </Field>
                   )}
                 />
@@ -420,7 +416,12 @@ export function PaymentForm({
                           </SelectContent>
                         </Select>
                       </FieldContent>
-                      <FieldError errors={[{ message: errors.status?.message }]} />
+                      <FieldError
+                        errors={[
+                          ...(errors.status?.message ? [{ message: errors.status.message }] : []),
+                          ...(getFieldErrors(serverErrors, 'status') || []),
+                        ]}
+                      />
                     </Field>
                   )}
                 />

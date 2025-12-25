@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import type { FormValidationErrors } from '@/types/form';
+
 import adminUserService from '@/services/admin-user.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
@@ -19,6 +21,7 @@ import {
 import { PageHead } from '@/components/page-head';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -30,6 +33,8 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 
+import { getFieldErrors } from '@/lib/utils';
+
 export default function AdminUserCreatePage() {
   useBreadcrumb([{ title: 'Kelola Pengguna', href: '/admin/user' }, { title: 'Buat Pengguna' }]);
 
@@ -37,10 +42,12 @@ export default function AdminUserCreatePage() {
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState('krama');
   const [canCreateResident, setCanCreateResident] = useState(false);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setErrors(null);
     const formData = new FormData(e.currentTarget);
 
     const data = {
@@ -58,8 +65,13 @@ export default function AdminUserCreatePage() {
       navigate('/admin/user');
     } catch (error: any) {
       console.error(error);
-      const message = error.response?.data?.message || 'Gagal membuat pengguna.';
-      toast.error(message);
+      if (error.response?.data?.error?.details) {
+        setErrors(error.response.data.error.details);
+        toast.error('Gagal membuat pengguna. Mohon periksa input form.');
+      } else {
+        const message = error.response?.data?.message || 'Gagal membuat pengguna.';
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -84,16 +96,19 @@ export default function AdminUserCreatePage() {
               <div className="grid gap-2">
                 <Label htmlFor="name">Nama Lengkap</Label>
                 <Input id="name" name="name" placeholder="Masukan nama lengkap" required />
+                <FieldError errors={getFieldErrors(errors, 'name')} />
               </div>
 
               <div className="grid gap-2">
                 <Label htmlFor="username">Username</Label>
                 <Input id="username" name="username" placeholder="Masukan username" required />
+                <FieldError errors={getFieldErrors(errors, 'username')} />
               </div>
 
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" name="email" type="email" placeholder="Masukan email" required />
+                <FieldError errors={getFieldErrors(errors, 'email')} />
               </div>
 
               <div className="grid gap-2">
@@ -106,6 +121,7 @@ export default function AdminUserCreatePage() {
                   required
                   minLength={8}
                 />
+                <FieldError errors={getFieldErrors(errors, 'password')} />
               </div>
 
               <div className="grid gap-2">
@@ -116,9 +132,11 @@ export default function AdminUserCreatePage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="krama">Krama (Penduduk)</SelectItem>
+                    <SelectItem value="operator">Operator</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
+                <FieldError errors={getFieldErrors(errors, 'role')} />
               </div>
 
               <div className="flex items-center justify-between rounded-lg border p-4">

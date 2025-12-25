@@ -1,3 +1,9 @@
+import { useState } from 'react';
+
+import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
+
 import operatorResidentService from '@/services/operator-resident.service';
 
 import { useBreadcrumb } from '@/hooks/use-breadcrumb';
@@ -18,8 +24,29 @@ export default function OperatorResidentCreatePage() {
     { title: 'Tambah Penduduk' },
   ]);
 
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
+
   const handleSubmit = async (formData: FormData) => {
-    await operatorResidentService.create(formData);
+    setErrors(null);
+    try {
+      const response = await operatorResidentService.create(formData);
+      if (response.success) {
+        toast.success('Penduduk berhasil ditambahkan.');
+      } else {
+        toast.error(response.message || 'Gagal menambahkan penduduk.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal menambahkan penduduk. Mohon periksa input form.');
+      } else {
+        const message =
+          err.response?.data?.message || err.message || 'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
+      throw err; // Re-throw to allow ResidentForm to handle generic errors if needed, though we handle toast here
+    }
   };
 
   return (
@@ -38,6 +65,7 @@ export default function OperatorResidentCreatePage() {
           onSubmit={handleSubmit}
           cancelPath="/operator/resident"
           successPath="/operator/resident"
+          serverErrors={errors}
         />
       </LayoutContentBody>
     </LayoutContent>

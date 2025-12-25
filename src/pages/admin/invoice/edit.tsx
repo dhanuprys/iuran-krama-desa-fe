@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { Loader2, Save } from 'lucide-react';
+import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
 
 import adminInvoiceService from '@/services/admin-invoice.service';
 import type { InvoiceFormData } from '@/services/admin-invoice.service';
@@ -22,10 +25,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyInput } from '@/components/ui/currency-input';
+import { FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getFieldErrors } from '@/lib/utils';
 
 export default function AdminInvoiceEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -33,7 +37,7 @@ export default function AdminInvoiceEditPage() {
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
   const [missingKramaStatus, setMissingKramaStatus] = useState(false);
 
   const [formData, setFormData] = useState<InvoiceFormData>({
@@ -72,10 +76,10 @@ export default function AdminInvoiceEditPage() {
             setMissingKramaStatus(false);
           }
         } else {
-          setError('Data tagihan tidak ditemukan.');
+          toast.error('Data tagihan tidak ditemukan.');
         }
       } catch (err) {
-        setError('Gagal memuat data.');
+        toast.error('Gagal memuat data.');
       } finally {
         setInitialLoading(false);
       }
@@ -99,12 +103,14 @@ export default function AdminInvoiceEditPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setErrors(null);
 
     if (!id) return;
 
     if (missingKramaStatus) {
-      setError('Penduduk tidak memiliki status krama yang valid. Silakan perbarui data penduduk.');
+      toast.error(
+        'Penduduk tidak memiliki status krama yang valid. Silakan perbarui data penduduk.',
+      );
       setLoading(false);
       return;
     }
@@ -112,14 +118,21 @@ export default function AdminInvoiceEditPage() {
     try {
       const response = await adminInvoiceService.updateInvoice(parseInt(id), formData);
       if (response.success) {
+        toast.success('Tagihan berhasil diperbarui.');
         navigate('/admin/invoice');
       } else {
-        setError(response.error?.message || 'Gagal memperbarui tagihan.');
+        toast.error(response.error?.message || 'Gagal memperbarui tagihan.');
       }
     } catch (err: any) {
-      setError(
-        err?.response?.data?.message || err?.message || 'Terjadi kesalahan saat menyimpan data.',
-      );
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal memperbarui tagihan. Mohon periksa input form.');
+      } else {
+        const message =
+          err.response?.data?.message || err.message || 'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -151,12 +164,6 @@ export default function AdminInvoiceEditPage() {
         }
       />
       <LayoutContentBody>
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
         <form onSubmit={handleSubmit}>
           <Card>
             <CardHeader>
@@ -167,7 +174,7 @@ export default function AdminInvoiceEditPage() {
               {missingKramaStatus && (
                 <Alert
                   variant="destructive"
-                  className="border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-900 dark:bg-yellow-900/20 dark:text-yellow-200"
+                  className="bg-yellow-50 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-200 dark:border-yellow-900"
                 >
                   <AlertTitle>Peringatan Status Penduduk</AlertTitle>
                   <AlertDescription className="flex flex-col gap-3">
@@ -207,6 +214,7 @@ export default function AdminInvoiceEditPage() {
                     }));
                   }}
                 />
+                <FieldError errors={getFieldErrors(errors, 'resident_id')} />
               </div>
 
               <div className="space-y-2">
@@ -221,6 +229,7 @@ export default function AdminInvoiceEditPage() {
                   onChange={handleChange}
                   required
                 />
+                <FieldError errors={getFieldErrors(errors, 'invoice_date')} />
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -249,6 +258,7 @@ export default function AdminInvoiceEditPage() {
                       }))
                     }
                   />
+                  <FieldError errors={getFieldErrors(errors, 'peturunan_amount')} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="dedosan_amount">Dedosan</Label>
@@ -264,10 +274,11 @@ export default function AdminInvoiceEditPage() {
                       }))
                     }
                   />
+                  <FieldError errors={getFieldErrors(errors, 'dedosan_amount')} />
                 </div>
               </div>
 
-              <div className="border-t pt-4">
+              <div className="pt-4 border-t">
                 <div className="flex items-center justify-between text-lg font-semibold">
                   <span>Total Tagihan</span>
                   <span>{formatCurrency(totalAmount)}</span>

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Loader2, Save } from 'lucide-react';
+import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
 
 import adminAnnouncementService, {
   type AnnouncementFormData,
@@ -17,13 +20,15 @@ import {
   LayoutContentSubHead,
 } from '@/components/layout-content';
 import { PageHead } from '@/components/page-head';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+
+import { getFieldErrors } from '@/lib/utils';
 
 export default function AdminAnnouncementCreatePage() {
   useBreadcrumb([
@@ -38,22 +43,30 @@ export default function AdminAnnouncementCreatePage() {
     is_active: true,
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setErrors(null);
 
     try {
       const response = await adminAnnouncementService.createAnnouncement(formData);
       if (response.success) {
+        toast.success('Pengumuman berhasil dibuat.');
         navigate('/admin/announcement');
       } else {
-        setError(response.error?.message || 'Gagal membuat pengumuman.');
+        toast.error(response.error?.message || 'Gagal membuat pengumuman.');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.');
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal membuat pengumuman. Mohon periksa input form.');
+      } else {
+        const message = err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -74,13 +87,6 @@ export default function AdminAnnouncementCreatePage() {
         <form onSubmit={handleSubmit}>
           <Card>
             <CardContent className="space-y-4 pt-6">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
               <div className="space-y-2">
                 <Label htmlFor="title">Judul</Label>
                 <Input
@@ -91,6 +97,7 @@ export default function AdminAnnouncementCreatePage() {
                   placeholder="Judul pengumuman..."
                   disabled={loading}
                 />
+                <FieldError errors={getFieldErrors(errors, 'title')} />
               </div>
 
               <div className="space-y-2">
@@ -104,6 +111,7 @@ export default function AdminAnnouncementCreatePage() {
                   rows={5}
                   disabled={loading}
                 />
+                <FieldError errors={getFieldErrors(errors, 'content')} />
               </div>
 
               <div className="flex items-center space-x-2">

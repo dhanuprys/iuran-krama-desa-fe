@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import type { Payment } from '@/types/entity';
+import type { FormValidationErrors } from '@/types/form';
 
 import operatorPaymentService from '@/services/operator-payment.service';
 
@@ -26,6 +27,7 @@ export default function OperatorPaymentEditPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [payment, setPayment] = useState<Payment | null>(null);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
 
   useBreadcrumb([
     { title: 'Kelola Pembayaran', href: '/operator/payment' },
@@ -55,10 +57,27 @@ export default function OperatorPaymentEditPage() {
 
   const handleSubmit = async (data: any) => {
     if (!payment) return;
+    setErrors(null);
 
-    await operatorPaymentService.updatePayment(payment.id, data);
-    toast.success('Pembayaran berhasil diperbarui.');
-    navigate(`/operator/payment/${payment.id}`);
+    try {
+      const response = await operatorPaymentService.updatePayment(payment.id, data);
+      if (response.success) {
+        toast.success('Pembayaran berhasil diperbarui.');
+        navigate(`/operator/payment/${payment.id}`);
+      } else {
+        toast.error(response.error?.message || 'Gagal memperbarui pembayaran.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal memperbarui pembayaran. Mohon periksa input form.');
+      } else {
+        const message =
+          err.response?.data?.message || err.message || 'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
+    }
   };
 
   if (loading) {
@@ -108,6 +127,7 @@ export default function OperatorPaymentEditPage() {
           initialData={payment}
           isEditing
           baseApiUrl="/operator"
+          serverErrors={errors}
         />
       </LayoutContentBody>
     </LayoutContent>
