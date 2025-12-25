@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Loader2, Save } from 'lucide-react';
+import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
 
 import operatorInvoiceService from '@/services/operator-invoice.service';
 import type { InvoiceFormData } from '@/services/operator-invoice.service';
@@ -22,10 +25,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyInput } from '@/components/ui/currency-input';
+import { FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getFieldErrors } from '@/lib/utils';
 
 export default function OperatorInvoiceCreatePage() {
   useBreadcrumb([
@@ -35,6 +39,7 @@ export default function OperatorInvoiceCreatePage() {
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [missingKramaStatus, setMissingKramaStatus] = useState(false);
 
@@ -59,6 +64,7 @@ export default function OperatorInvoiceCreatePage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setErrors(null);
 
     if (!formData.resident_id) {
       setError('Silakan pilih penduduk terlebih dahulu.');
@@ -75,14 +81,21 @@ export default function OperatorInvoiceCreatePage() {
     try {
       const response = await operatorInvoiceService.createInvoice(formData);
       if (response.success) {
+        toast.success('Tagihan berhasil dibuat.');
         navigate('/operator/invoice');
       } else {
-        setError(response.error?.message || 'Gagal membuat tagihan.');
+        toast.error(response.error?.message || 'Gagal membuat tagihan.');
       }
     } catch (err: any) {
-      setError(
-        err?.response?.data?.message || err?.message || 'Terjadi kesalahan saat menyimpan data.',
-      );
+      console.error(err);
+      if (err?.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal membuat tagihan. Mohon periksa input form.');
+      } else {
+        setError(
+          err?.response?.data?.message || err?.message || 'Terjadi kesalahan saat menyimpan data.',
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -165,6 +178,7 @@ export default function OperatorInvoiceCreatePage() {
                   }}
                   additionalFilters={{ family_status: 'HEAD_OF_FAMILY' }}
                 />
+                <FieldError errors={getFieldErrors(errors, 'resident_id')} />
               </div>
 
               <div className="space-y-2">
@@ -179,6 +193,7 @@ export default function OperatorInvoiceCreatePage() {
                   onChange={handleChange}
                   required
                 />
+                <FieldError errors={getFieldErrors(errors, 'invoice_date')} />
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -207,6 +222,7 @@ export default function OperatorInvoiceCreatePage() {
                       }))
                     }
                   />
+                  <FieldError errors={getFieldErrors(errors, 'peturunan_amount')} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="dedosan_amount">Dedosan</Label>
@@ -222,6 +238,7 @@ export default function OperatorInvoiceCreatePage() {
                       }))
                     }
                   />
+                  <FieldError errors={getFieldErrors(errors, 'dedosan_amount')} />
                 </div>
               </div>
 

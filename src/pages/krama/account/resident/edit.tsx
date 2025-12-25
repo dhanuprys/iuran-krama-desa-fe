@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 import type { Resident } from '@/types/entity';
+import type { FormValidationErrors } from '@/types/form';
 
 import residentService from '@/services/krama-resident.service';
 
@@ -27,6 +29,7 @@ export default function KramaAccountResidentEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [resident, setResident] = useState<Resident | null>(null);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
 
   useBreadcrumb([
     { title: 'Akun' },
@@ -68,7 +71,22 @@ export default function KramaAccountResidentEditPage() {
 
   const handleSubmit = async (formData: FormData) => {
     if (id) {
-      await residentService.updateResident(id, formData);
+      setErrors(null);
+      try {
+        await residentService.updateResident(id, formData);
+        toast.success('Permintaan perubahan data berhasil dikirim.');
+      } catch (err: any) {
+        console.error(err);
+        if (err.response?.data?.error?.details) {
+          setErrors(err.response.data.error.details);
+          toast.error('Gagal mengirim data. Mohon periksa input form.');
+        } else {
+          const message =
+            err.response?.data?.message || err.message || 'Terjadi kesalahan saat menyimpan data.';
+          toast.error(message);
+        }
+        throw err;
+      }
     }
   };
 
@@ -123,6 +141,7 @@ export default function KramaAccountResidentEditPage() {
             onSubmit={handleSubmit}
             isEditing
             submitLabel={resident.validation_status === 'REJECTED' ? 'Ajukan Kembali' : undefined}
+            serverErrors={errors}
           />
         ) : (
           <div>Data tidak ditemukan</div>

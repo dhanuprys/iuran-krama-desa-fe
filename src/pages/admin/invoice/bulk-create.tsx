@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { CheckCircle, Inbox, Loader2, Search, TriangleAlert } from 'lucide-react';
+import { CheckCircle, Inbox, Loader2, Search } from 'lucide-react';
+import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
 
 import adminInvoiceService from '@/services/admin-invoice.service';
 
@@ -16,7 +19,6 @@ import {
   LayoutContentSubHead,
 } from '@/components/layout-content';
 import { PageHead } from '@/components/page-head';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,10 +33,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CurrencyInput } from '@/components/ui/currency-input';
+import { FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getFieldErrors } from '@/lib/utils';
 
 interface PreviewItem {
   resident_id: number;
@@ -55,7 +58,7 @@ export default function AdminInvoiceBulkCreatePage() {
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [previewData, setPreviewData] = useState<{
     items: PreviewItem[];
@@ -79,7 +82,7 @@ export default function AdminInvoiceBulkCreatePage() {
   const handlePreview = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setErrors(null);
     setPreviewData(null);
 
     try {
@@ -92,15 +95,22 @@ export default function AdminInvoiceBulkCreatePage() {
       if (response.success) {
         setPreviewData(response.data);
         if (response.data.items.length === 0) {
-          setError(
-            'Tidak ada penduduk yang memenuhi syarat untuk dibuatkan tagihan pada periode ini (Mungkin semua sudah memiliki tagihan).',
+          toast.info(
+            'Tidak ada penduduk yang memenuhi syarat untuk dibuatkan tagihan pada periode ini.',
           );
         }
       } else {
-        setError(response.error?.message || 'Gagal memuat preview.');
+        toast.error(response.error?.message || 'Gagal memuat preview.');
       }
     } catch (err: any) {
-      setError(err?.message || 'Terjadi kesalahan saat memuat preview.');
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal memuat preview. Mohon periksa input parameter.');
+      } else {
+        const message = err.message || 'Terjadi kesalahan saat memuat preview.';
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -109,7 +119,7 @@ export default function AdminInvoiceBulkCreatePage() {
   const handleSubmit = async () => {
     if (!previewData || previewData.items.length === 0) return;
     setLoading(true);
-    setError(null);
+    setErrors(null);
     setShowConfirm(false);
 
     try {
@@ -118,12 +128,14 @@ export default function AdminInvoiceBulkCreatePage() {
         items: previewData.items,
       });
       if (response.success) {
+        toast.success(`Berhasil membuat ${previewData.items.length} tagihan secara massal.`);
         navigate('/admin/invoice');
       } else {
-        setError(response.error?.message || 'Gagal membuat tagihan massal.');
+        toast.error(response.error?.message || 'Gagal membuat tagihan massal.');
       }
     } catch (err: any) {
-      setError(err?.message || 'Terjadi kesalahan saat menyimpan data.');
+      console.error(err);
+      toast.error(err?.message || 'Terjadi kesalahan saat menyimpan data.');
     } finally {
       setLoading(false);
     }
@@ -145,14 +157,6 @@ export default function AdminInvoiceBulkCreatePage() {
         }
       />
       <LayoutContentBody>
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <TriangleAlert className="h-4 w-4" />
-            <AlertTitle>Info</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
         <div className="relative grid items-start gap-6 md:grid-cols-3">
           {/* Parameter Section - Sticky on Desktop */}
           <Card className="h-fit md:sticky md:top-6 md:col-span-1">
@@ -176,6 +180,7 @@ export default function AdminInvoiceBulkCreatePage() {
                     Sistem akan mengecek apakah penduduk sudah memiliki tagihan di bulan/tahun yang
                     sama dengan tanggal ini.
                   </p>
+                  <FieldError errors={getFieldErrors(errors, 'invoice_date')} />
                 </div>
 
                 <div className="space-y-2">
@@ -192,6 +197,7 @@ export default function AdminInvoiceBulkCreatePage() {
                       }))
                     }
                   />
+                  <FieldError errors={getFieldErrors(errors, 'peturunan_amount')} />
                 </div>
 
                 <div className="space-y-2">
@@ -208,6 +214,7 @@ export default function AdminInvoiceBulkCreatePage() {
                       }))
                     }
                   />
+                  <FieldError errors={getFieldErrors(errors, 'dedosan_amount')} />
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
@@ -229,7 +236,7 @@ export default function AdminInvoiceBulkCreatePage() {
             </CardHeader>
             <CardContent className="flex-1">
               {!previewData ? (
-                <div className="text-muted-foreground bg-muted/50 flex h-[300px] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed">
+                <div className="flex h-[300px] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed bg-muted/50 text-muted-foreground">
                   <Inbox className="h-10 w-10 opacity-50" />
                   <p className="font-medium">Belum ada preview data</p>
                   <p className="text-sm">Silakan isi parameter dan klik "Cek Preview"</p>
@@ -237,19 +244,19 @@ export default function AdminInvoiceBulkCreatePage() {
               ) : (
                 <div className="space-y-4">
                   {/* Sticky Header within Preview Card could be nice, but simple top block is fine too */}
-                  <div className="bg-primary/5 flex flex-wrap items-center justify-between gap-4 rounded-lg border p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-primary/5 p-4">
                     <div className="flex gap-8">
                       <div>
-                        <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+                        <p className="text-xs font-medium tracking-wider uppercase text-muted-foreground">
                           Total KK
                         </p>
                         <p className="text-2xl font-bold">{previewData.total_residents}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+                        <p className="text-xs font-medium tracking-wider uppercase text-muted-foreground">
                           Estimasi Total
                         </p>
-                        <p className="text-primary text-2xl font-bold">
+                        <p className="text-2xl font-bold text-primary">
                           {formatCurrency(previewData.total_amount_all)}
                         </p>
                       </div>
@@ -269,9 +276,8 @@ export default function AdminInvoiceBulkCreatePage() {
                       {previewData.items.map((item, index) => (
                         <div
                           key={item.resident_id}
-                          className={`hover:bg-muted/50 flex flex-col justify-between gap-4 p-4 sm:flex-row sm:items-center ${
-                            index !== previewData.items.length - 1 ? 'border-b' : ''
-                          }`}
+                          className={`flex flex-col justify-between gap-4 p-4 hover:bg-muted/50 sm:flex-row sm:items-center ${index !== previewData.items.length - 1 ? 'border-b' : ''
+                            }`}
                         >
                           <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-2">
@@ -280,16 +286,16 @@ export default function AdminInvoiceBulkCreatePage() {
                                 {item.banjar_name}
                               </Badge>
                             </div>
-                            <p className="text-muted-foreground text-sm">{item.resident_nik}</p>
+                            <p className="text-sm text-muted-foreground">{item.resident_nik}</p>
                           </div>
 
-                          <div className="flex flex-col gap-x-6 gap-y-1 text-sm sm:flex-row sm:items-center">
+                          <div className="flex flex-col gap-y-1 gap-x-6 text-sm sm:flex-row sm:items-center">
                             <div className="flex justify-between gap-2 sm:block">
-                              <span className="text-muted-foreground sm:hidden">Iuran:</span>
+                              <span className="sm:hidden text-muted-foreground">Iuran:</span>
                               <span>{formatCurrency(item.iuran_amount)}</span>
                             </div>
                             {(item.peturunan_amount > 0 || item.dedosan_amount > 0) && (
-                              <div className="text-muted-foreground flex gap-4 text-xs sm:text-sm">
+                              <div className="flex gap-4 text-xs text-muted-foreground sm:text-sm">
                                 {item.peturunan_amount > 0 && (
                                   <span>+ {formatCurrency(item.peturunan_amount)} (Peturunan)</span>
                                 )}

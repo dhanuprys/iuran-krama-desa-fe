@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
 
 import adminPaymentService from '@/services/admin-payment.service';
 
@@ -26,11 +29,29 @@ export default function AdminPaymentCreatePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const invoiceId = searchParams.get('invoice_id') || undefined;
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
 
   const handleSubmit = async (data: any) => {
-    await adminPaymentService.createPayment(data);
-    toast.success('Pembayaran berhasil dicatat.');
-    navigate('/admin/payment');
+    setErrors(null);
+    try {
+      const response = await adminPaymentService.createPayment(data);
+      if (response.success) {
+        toast.success('Pembayaran berhasil dicatat.');
+        navigate('/admin/payment');
+      } else {
+        toast.error(response.error?.message || 'Gagal mencatat pembayaran.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal mencatat pembayaran. Mohon periksa input form.');
+      } else {
+        const message =
+          err.response?.data?.message || err.message || 'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
+    }
   };
 
   return (
@@ -46,7 +67,12 @@ export default function AdminPaymentCreatePage() {
         }
       />
       <LayoutContentBody>
-        <PaymentForm onSubmit={handleSubmit} invoiceId={invoiceId} baseApiUrl="/admin" />
+        <PaymentForm
+          onSubmit={handleSubmit}
+          invoiceId={invoiceId}
+          baseApiUrl="/admin"
+          serverErrors={errors}
+        />
       </LayoutContentBody>
     </LayoutContent>
   );

@@ -1,4 +1,9 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
 
 import residentService from '@/services/krama-resident.service';
 
@@ -17,10 +22,27 @@ import { ResidentForm } from '@/components/resident-form';
 
 export default function KramaAccountResidentCreatePage() {
   const navigate = useNavigate();
+  const [errors, setErrors] = useState<FormValidationErrors | null>(null);
+
   useBreadcrumb([{ title: 'Akun' }, { title: 'Penduduk' }, { title: 'Tambah Penduduk' }]);
 
   const handleSubmit = async (formData: FormData) => {
-    await residentService.createResident(formData);
+    setErrors(null);
+    try {
+      await residentService.createResident(formData);
+      toast.success('Permintaan tambah penduduk berhasil dikirim.');
+    } catch (err: any) {
+      console.error(err);
+      if (err.response?.data?.error?.details) {
+        setErrors(err.response.data.error.details);
+        toast.error('Gagal mengirim data. Mohon periksa input form.');
+      } else {
+        const message =
+          err.response?.data?.message || err.message || 'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
+      throw err;
+    }
   };
 
   return (
@@ -38,7 +60,7 @@ export default function KramaAccountResidentCreatePage() {
         }
       />
       <LayoutContentBody>
-        <ResidentForm onSubmit={handleSubmit} />
+        <ResidentForm onSubmit={handleSubmit} serverErrors={errors} />
       </LayoutContentBody>
     </LayoutContent>
   );
