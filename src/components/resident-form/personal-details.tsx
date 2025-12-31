@@ -158,6 +158,7 @@ export function PersonalDetails({
                 </SelectContent>
               </Select>
             </FieldContent>
+            <FieldError errors={getFieldErrors(errors, 'family_status')} />
           </Field>
           <Field>
             <FieldLabel>Status Perkawinan</FieldLabel>
@@ -177,6 +178,46 @@ export function PersonalDetails({
                 </SelectContent>
               </Select>
             </FieldContent>
+            <FieldError errors={getFieldErrors(errors, 'marital_status')} />
+          </Field>
+        </FieldGroup>
+
+        <FieldGroup className="grid gap-4 md:grid-cols-2">
+          <Field>
+            <FieldLabel>Pendidikan Terakhir</FieldLabel>
+            <FieldContent>
+              <Select
+                value={formData.education}
+                onValueChange={(val) => handleSelectChange('education', val)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih Pendidikan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SD">SD</SelectItem>
+                  <SelectItem value="SMP">SMP</SelectItem>
+                  <SelectItem value="SMA">SMA/SMK</SelectItem>
+                  <SelectItem value="DIPLOMA">Diploma</SelectItem>
+                  <SelectItem value="SARJANA">Sarjana (S1)</SelectItem>
+                  <SelectItem value="MAGISTER">Magister (S2)</SelectItem>
+                  <SelectItem value="DOKTOR">Doktor (S3)</SelectItem>
+                  <SelectItem value="TIDAK_SEKOLAH">Tidak/Belum Sekolah</SelectItem>
+                </SelectContent>
+              </Select>
+            </FieldContent>
+            <FieldError errors={getFieldErrors(errors, 'education')} />
+          </Field>
+          <Field>
+            <FieldLabel>Pekerjaan</FieldLabel>
+            <FieldContent>
+              <Input
+                name="work_type"
+                value={formData.work_type}
+                onChange={handleChange}
+                placeholder="Pekerjaan saat ini"
+              />
+            </FieldContent>
+            <FieldError errors={getFieldErrors(errors, 'work_type')} />
           </Field>
         </FieldGroup>
       </CardContent>

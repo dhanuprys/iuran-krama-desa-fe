@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+import type { FormValidationErrors } from '@/types/form';
 
 import adminResidentService, { type Resident } from '@/services/admin-resident.service';
 
@@ -21,6 +24,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 export default function AdminResidentEditPage() {
   const { id } = useParams();
   const [resident, setResident] = useState<Resident | null>(null);
+  const [serverErrors, setServerErrors] = useState<FormValidationErrors | null>(null);
 
   useBreadcrumb([
     { title: 'Kelola Penduduk', href: '/admin/resident' },
@@ -51,8 +55,28 @@ export default function AdminResidentEditPage() {
   };
 
   const handleSubmit = async (formData: FormData) => {
-    if (id) {
-      await adminResidentService.update(parseInt(id), formData);
+    if (!id) return;
+    setServerErrors(null);
+    try {
+      const response = await adminResidentService.update(parseInt(id), formData);
+      if (response.success) {
+        toast.success('Data penduduk berhasil diperbarui.');
+      } else {
+        toast.error(response.message || 'Gagal memperbarui data penduduk.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err?.response?.data?.error?.details) {
+        setServerErrors(err.response.data.error.details);
+        toast.error('Gagal memperbarui data. Mohon periksa input form.');
+      } else {
+        const message =
+          err?.response?.data?.message ||
+          err?.message ||
+          'Terjadi kesalahan saat menyimpan data.';
+        toast.error(message);
+      }
+      throw err; // Re-throw so ResidentForm can stop loading state if needed
     }
   };
 
@@ -95,6 +119,7 @@ export default function AdminResidentEditPage() {
           isEditing={true}
           cancelPath="/admin/resident"
           successPath="/admin/resident"
+          serverErrors={serverErrors}
         />
       </LayoutContentBody>
     </LayoutContent>
