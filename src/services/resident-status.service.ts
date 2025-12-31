@@ -13,7 +13,7 @@ export interface ResidentStatus {
 export class ResidentStatusService {
   async getAll() {
     const response = await apiClient.get<HttpResponse<ResidentStatus[]>>(
-      '/admin/resident-statuses',
+      '/resident-statuses',
     );
     return response.data;
   }
