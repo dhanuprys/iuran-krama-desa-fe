@@ -19,6 +19,7 @@ export interface ResidentFormData {
   email: string;
   banjar_id: string;
   resident_status_id: string;
+  arrival_date: string;
 }
 
 export interface ResidentFormFiles {

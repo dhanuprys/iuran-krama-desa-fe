@@ -88,6 +88,20 @@ export function AdatAndAddressDetails({
               </Select>
             </FieldContent>
           </Field>
+
+          <Field>
+            <FieldLabel>Tanggal Masuk/Terdaftar</FieldLabel>
+            <FieldContent>
+              <Input
+                type="date"
+                name="arrival_date"
+                value={formData.arrival_date}
+                onChange={handleChange}
+                max={new Date().toISOString().split('T')[0]}
+              />
+            </FieldContent>
+            <FieldError errors={getFieldErrors(errors, 'arrival_date')} />
+          </Field>
         </FieldGroup>
 
         <FieldGroup className="grid gap-4 md:grid-cols-2">
@@ -190,6 +204,6 @@ export function AdatAndAddressDetails({
           </Field>
         </FieldGroup>
       </CardContent>
-    </Card>
+    </Card >
   );
 }

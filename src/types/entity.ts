@@ -47,6 +47,7 @@ export interface Resident {
   residence_name: string | null;
   house_number: string;
   location: string;
+  arrival_date?: string;
   phone: string;
   email: string;
   validation_status: string;

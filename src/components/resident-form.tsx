@@ -66,6 +66,7 @@ export function ResidentForm({
     email: initialData?.email || '',
     banjar_id: initialData?.banjar?.id?.toString() || '', // Default empty
     resident_status_id: initialData?.resident_status?.id?.toString() || '',
+    arrival_date: initialData?.arrival_date?.split('T')[0] || '',
   });
 
   const parseLocation = (loc: any) => {
